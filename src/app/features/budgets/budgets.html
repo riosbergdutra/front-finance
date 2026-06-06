@@ -1,0 +1,102 @@
+<div class="page-enter">
+  <div class="page-header">
+    <div>
+      <h2>Orçamentos</h2>
+      <span class="text-secondary">{{ monthName() }} {{ currentYear }}</span>
+    </div>
+    <div class="header-actions">
+      <div class="month-nav">
+        <button class="icon-btn" (click)="prevMonth()"><span class="material-icons-round">chevron_left</span></button>
+        <span class="month-label">{{ monthName() }}</span>
+        <button class="icon-btn" (click)="nextMonth()"><span class="material-icons-round">chevron_right</span></button>
+      </div>
+      <button class="btn-primary" (click)="openForm()">
+        <span class="material-icons-round">add</span> Novo orçamento
+      </button>
+    </div>
+  </div>
+
+  <div class="loading-center" *ngIf="loading()">
+    <div class="spinner"></div>
+  </div>
+
+  <div class="empty-state" *ngIf="!loading() && budgets().length === 0">
+    <span class="material-icons-round">donut_small</span>
+    <p>Nenhum orçamento para este mês</p>
+    <button class="btn-primary" (click)="openForm()">Criar primeiro orçamento</button>
+  </div>
+
+  <div class="budgets-grid" *ngIf="!loading() && budgets().length > 0">
+    <div class="budget-card" *ngFor="let b of budgets()">
+      <div class="budget-header">
+        <div class="budget-title">
+          <div class="budget-icon">
+            <span class="material-icons-round">category</span>
+          </div>
+          <div>
+            <div class="budget-cat">{{ b.categoryNome || 'Geral' }}</div>
+            <div class="budget-period text-secondary">{{ monthName() }} {{ currentYear }}</div>
+          </div>
+        </div>
+        <div class="budget-actions">
+          <button class="icon-btn" (click)="openForm(b)"><span class="material-icons-round">edit</span></button>
+          <button class="icon-btn danger" (click)="delete(b.id)"><span class="material-icons-round">delete_outline</span></button>
+        </div>
+      </div>
+
+      <div class="budget-values">
+        <span class="mono" [class.text-red]="b.percentualGasto >= 100" [class.text-yellow]="b.percentualGasto >= 80 && b.percentualGasto < 100">
+          {{ b.valorGasto | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+        </span>
+        <span class="text-muted">de {{ b.valorLimite | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+      </div>
+
+      <div class="progress-row">
+        <mat-progress-bar [value]="b.percentualGasto" [color]="progressColor(b.percentualGasto)"></mat-progress-bar>
+        <span class="pct" [class.text-red]="b.percentualGasto >= 100">{{ b.percentualGasto.toFixed(0) }}%</span>
+      </div>
+
+      <div class="budget-footer">
+        <span *ngIf="b.alertaEm" class="alert-badge">
+          <span class="material-icons-round">notifications</span> Alerta em {{ b.alertaEm }}%
+        </span>
+        <span class="restante" [class.text-red]="b.percentualGasto >= 100">
+          {{ b.percentualGasto >= 100 ? 'Limite excedido' : 'Restam ' + ((b.valorLimite - b.valorGasto) | currency:'BRL':'symbol':'1.2-2':'pt-BR') }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dialog -->
+  <div class="dialog-overlay" *ngIf="showForm()" (click)="closeForm()">
+    <div class="dialog-card" (click)="$event.stopPropagation()">
+      <div class="dialog-header">
+        <h3>{{ editing() ? 'Editar orçamento' : 'Novo orçamento' }}</h3>
+        <button class="icon-btn" (click)="closeForm()"><span class="material-icons-round">close</span></button>
+      </div>
+      <form [formGroup]="form" (ngSubmit)="save()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Categoria (opcional)</mat-label>
+          <mat-select formControlName="categoryId">
+            <mat-option [value]="null">Sem categoria (geral)</mat-option>
+            <mat-option *ngFor="let c of categories()" [value]="c.id">{{ c.nome }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Limite (R$)</mat-label>
+          <input matInput type="number" step="0.01" formControlName="valorLimite" />
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Alerta em (% do limite)</mat-label>
+          <input matInput type="number" formControlName="alertaEm" placeholder="80" />
+        </mat-form-field>
+        <div class="dialog-actions">
+          <button type="button" class="btn-secondary" (click)="closeForm()">Cancelar</button>
+          <button type="submit" class="btn-primary" [disabled]="form.invalid || saving()">
+            {{ editing() ? 'Salvar' : 'Criar' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
