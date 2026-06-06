@@ -1,0 +1,40 @@
+<div class="page-enter">
+  <div class="page-header">
+    <div>
+      <h2>Notificações</h2>
+      <span class="text-secondary">{{ totalElements() }} no total</span>
+    </div>
+    <button class="btn-outline" (click)="markAllRead()" [disabled]="notifications().every(n => n.lida)">
+      <span class="material-icons-round">done_all</span> Marcar todas como lidas
+    </button>
+  </div>
+
+  <div class="loading-center" *ngIf="loading()"><div class="spinner"></div></div>
+
+  <div class="notif-card" *ngIf="!loading()">
+    <div class="empty-state" *ngIf="notifications().length === 0">
+      <span class="material-icons-round">notifications_none</span>
+      <p>Nenhuma notificação</p>
+    </div>
+
+    <div class="notif-list" *ngIf="notifications().length > 0">
+      <div class="notif-row" *ngFor="let n of notifications()" [class.unread]="!n.lida" (click)="markRead(n.id)">
+        <div class="notif-icon" [ngClass]="iconClass(n.tipo)">
+          <span class="material-icons-round">{{ tipoIcon(n.tipo) }}</span>
+        </div>
+        <div class="notif-body">
+          <div class="notif-title">{{ n.titulo }}</div>
+          <div class="notif-msg text-secondary">{{ n.mensagem }}</div>
+          <div class="notif-time text-muted">{{ n.criadoEm | date:'dd/MM/yy HH:mm':'':'pt-BR' }}</div>
+        </div>
+        <div class="notif-dot" *ngIf="!n.lida"></div>
+      </div>
+    </div>
+
+    <mat-paginator *ngIf="totalElements() > 0"
+      [length]="totalElements()" [pageSize]="20"
+      (page)="onPage($event)"
+      [style.background]="'transparent'" [style.color]="'var(--text-secondary)'">
+    </mat-paginator>
+  </div>
+</div>
