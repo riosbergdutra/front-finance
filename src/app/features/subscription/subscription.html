@@ -1,0 +1,110 @@
+<div class="page-enter">
+  <div class="page-header">
+    <h2>Plano e Assinatura</h2>
+    <span class="text-secondary">Gerencie sua assinatura FinanceFlow</span>
+  </div>
+
+  <div class="loading-center" *ngIf="loading()"><div class="spinner"></div></div>
+
+  <ng-container *ngIf="!loading() && plan()">
+    <!-- Status do plano -->
+    <div class="plan-status-card" [class.pro]="plan()!.isPro">
+      <div class="plan-status-left">
+        <div class="plan-badge-icon">
+          <span class="material-icons-round">{{ plan()!.isPro ? 'workspace_premium' : 'account_circle' }}</span>
+        </div>
+        <div>
+          <div class="plan-name">Plano {{ plan()!.plano }}</div>
+          <div class="plan-status text-secondary">
+            <ng-container *ngIf="plan()!.isPro">
+              {{ diasLabel() }} · Vence em {{ plan()!.fimPeriodo | date:'dd/MM/yyyy' }}
+            </ng-container>
+            <ng-container *ngIf="!plan()!.isPro">
+              Gratuito — sem data de expiração
+            </ng-container>
+          </div>
+        </div>
+      </div>
+      <span class="status-badge" [ngClass]="plan()!.isPro ? 'badge-green' : 'badge-blue'">
+        {{ plan()!.status }}
+      </span>
+    </div>
+
+    <!-- Limites atuais -->
+    <div class="section-title">Limites do plano atual</div>
+    <div class="limits-grid">
+      <div class="limit-card">
+        <div class="limit-icon"><span class="material-icons-round">account_balance_wallet</span></div>
+        <div class="limit-label">Contas ativas</div>
+        <div class="limit-value mono">{{ limiteContasLabel() }}</div>
+      </div>
+      <div class="limit-card">
+        <div class="limit-icon"><span class="material-icons-round">receipt_long</span></div>
+        <div class="limit-label">Transações / mês</div>
+        <div class="limit-value mono">{{ limiteTransacoesLabel() }}</div>
+      </div>
+      <div class="limit-card" [class.locked]="!plan()!.isPro">
+        <div class="limit-icon"><span class="material-icons-round">download</span></div>
+        <div class="limit-label">Exportar Excel/PDF</div>
+        <div class="limit-value">
+          <span *ngIf="plan()!.isPro" class="badge badge-green">Disponível</span>
+          <span *ngIf="!plan()!.isPro" class="badge badge-red">PRO</span>
+        </div>
+      </div>
+      <div class="limit-card" [class.locked]="!plan()!.isPro">
+        <div class="limit-icon"><span class="material-icons-round">sync_alt</span></div>
+        <div class="limit-label">Open Finance</div>
+        <div class="limit-value">
+          <span *ngIf="plan()!.isPro" class="badge badge-green">Disponível</span>
+          <span *ngIf="!plan()!.isPro" class="badge badge-red">PRO</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upgrade (FREE) -->
+    <div class="upgrade-card" *ngIf="!plan()!.isPro">
+      <div class="upgrade-left">
+        <div class="upgrade-title">
+          <span class="material-icons-round">rocket_launch</span>
+          Faça upgrade para o PRO
+        </div>
+        <p class="upgrade-desc">Contas ilimitadas, transações ilimitadas, exportação e Open Finance por R$ 19,90/mês.</p>
+        <ul class="upgrade-features">
+          <li><span class="material-icons-round">check</span> Contas e transações ilimitadas</li>
+          <li><span class="material-icons-round">check</span> Exportar relatórios em Excel e PDF</li>
+          <li><span class="material-icons-round">check</span> Importar transações via Open Finance</li>
+          <li><span class="material-icons-round">check</span> Suporte prioritário</li>
+        </ul>
+      </div>
+      <div class="upgrade-right">
+        <div class="upgrade-price">R$ 19,90<span>/mês</span></div>
+        <button class="btn-upgrade" (click)="upgrade()">
+          <span class="material-icons-round">workspace_premium</span>
+          Assinar PRO
+        </button>
+        <p class="upgrade-note">Cancele quando quiser</p>
+      </div>
+    </div>
+
+    <!-- Exportação (PRO) -->
+    <div class="export-card" *ngIf="plan()!.isPro">
+      <div class="section-title" style="margin-bottom:16px">Exportar relatório</div>
+      <div class="export-row">
+        <div class="filter-field">
+          <label>De</label>
+          <input type="date" [(ngModel)]="exportDe" class="date-input" />
+        </div>
+        <div class="filter-field">
+          <label>Até</label>
+          <input type="date" [(ngModel)]="exportAte" class="date-input" />
+        </div>
+        <button class="btn-export" (click)="exportExcel()">
+          <span class="material-icons-round">table_chart</span> Excel
+        </button>
+        <button class="btn-export" (click)="exportPdf()">
+          <span class="material-icons-round">picture_as_pdf</span> PDF
+        </button>
+      </div>
+    </div>
+  </ng-container>
+</div>
