@@ -1,0 +1,133 @@
+ <div class="page-enter">
+      <div class="page-header">
+        <div>
+          <h2>Transações</h2>
+          <span class="text-secondary">{{ totalElements() }} transações no período</span>
+        </div>
+        <button class="btn-primary" (click)="openForm()">
+          <span class="material-icons-round">add</span> Nova transação
+        </button>
+      </div>
+ 
+      <!-- Filtros -->
+      <div class="filters-bar">
+        <div class="filter-field">
+          <label>De</label>
+          <input type="date" [(ngModel)]="filterDe" (change)="load()" class="date-input" />
+        </div>
+        <div class="filter-field">
+          <label>Até</label>
+          <input type="date" [(ngModel)]="filterAte" (change)="load()" class="date-input" />
+        </div>
+      </div>
+ 
+      <!-- Lista -->
+      <div class="tx-card">
+        <div *ngIf="loading()" class="loading-center">
+          <mat-spinner diameter="32"></mat-spinner>
+        </div>
+ 
+        <div *ngIf="!loading() && transactions().length === 0" class="empty-state">
+          <span class="material-icons-round">receipt_long</span>
+          <p>Nenhuma transação no período</p>
+        </div>
+ 
+        <div class="tx-table" *ngIf="!loading() && transactions().length > 0">
+          <div class="tx-row" *ngFor="let tx of transactions()">
+            <div class="tx-icon" [class.receita]="tx.tipo === 'RECEITA'" [class.despesa]="tx.tipo === 'DESPESA'" [class.transf]="tx.tipo === 'TRANSFERENCIA'">
+              <span class="material-icons-round">{{ tx.tipo === 'RECEITA' ? 'south' : tx.tipo === 'DESPESA' ? 'north' : 'swap_horiz' }}</span>
+            </div>
+            <div class="tx-main">
+              <span class="tx-desc">{{ tx.descricao || tx.estabelecimento || 'Sem descrição' }}</span>
+              <span class="tx-meta text-secondary">
+                {{ tx.categoryNome || 'Sem categoria' }} · {{ tx.data | date:'dd/MM/yy':'':'pt-BR' }}
+              </span>
+            </div>
+            <div class="tx-right">
+              <span class="tx-valor mono"
+                [class.text-green]="tx.tipo === 'RECEITA'"
+                [class.text-red]="tx.tipo === 'DESPESA'">
+                {{ tx.tipo === 'RECEITA' ? '+' : '-' }}{{ tx.valor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+              </span>
+              <span class="badge" [ngClass]="statusBadge(tx.status)">{{ tx.status }}</span>
+            </div>
+            <div class="tx-actions">
+              <button class="icon-btn danger" (click)="delete(tx.id)">
+                <span class="material-icons-round">delete_outline</span>
+              </button>
+            </div>
+          </div>
+        </div>
+ 
+        <mat-paginator
+          *ngIf="totalElements() > 0"
+          [length]="totalElements()"
+          [pageSize]="20"
+          [pageSizeOptions]="[10, 20, 50]"
+          (page)="onPage($event)"
+          [style.background]="'transparent'"
+          [style.color]="'var(--text-secondary)'">
+        </mat-paginator>
+      </div>
+ 
+      <!-- Form Dialog -->
+      <div class="dialog-overlay" *ngIf="showForm()" (click)="closeForm()">
+        <div class="dialog-card" (click)="$event.stopPropagation()">
+          <div class="dialog-header">
+            <h3>Nova transação</h3>
+            <button class="icon-btn" (click)="closeForm()">
+              <span class="material-icons-round">close</span>
+            </button>
+          </div>
+          <form [formGroup]="form" (ngSubmit)="save()">
+            <div class="form-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>Tipo</mat-label>
+                <mat-select formControlName="tipo">
+                  <mat-option value="RECEITA">Receita</mat-option>
+                  <mat-option value="DESPESA">Despesa</mat-option>
+                  <mat-option value="TRANSFERENCIA">Transferência</mat-option>
+                </mat-select>
+              </mat-form-field>
+ 
+              <mat-form-field appearance="outline">
+                <mat-label>Conta</mat-label>
+                <mat-select formControlName="accountId">
+                  <mat-option *ngFor="let a of accounts()" [value]="a.id">{{ a.name }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+ 
+              <mat-form-field appearance="outline">
+                <mat-label>Valor (R$)</mat-label>
+                <input matInput type="number" step="0.01" formControlName="valor" />
+              </mat-form-field>
+ 
+              <mat-form-field appearance="outline">
+                <mat-label>Data</mat-label>
+                <input matInput type="date" formControlName="data" />
+              </mat-form-field>
+ 
+              <mat-form-field appearance="outline">
+                <mat-label>Categoria</mat-label>
+                <mat-select formControlName="categoryId">
+                  <mat-option [value]="null">Automática</mat-option>
+                  <mat-option *ngFor="let c of categories()" [value]="c.id">{{ c.nome }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+ 
+              <mat-form-field appearance="outline">
+                <mat-label>Descrição</mat-label>
+                <input matInput formControlName="descricao" />
+              </mat-form-field>
+            </div>
+            <div class="dialog-actions">
+              <button type="button" class="btn-secondary" (click)="closeForm()">Cancelar</button>
+              <button type="submit" class="btn-primary" [disabled]="form.invalid || saving()">
+                <mat-spinner *ngIf="saving()" diameter="16"></mat-spinner>
+                Salvar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
