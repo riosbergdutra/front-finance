@@ -1,0 +1,139 @@
+<!-- ── Navbar ──────────────────────────────────────────────────────────── -->
+<nav class="navbar">
+  <div class="nav-brand">
+    <span class="material-icons-round">trending_up</span>
+    <span>FinanceFlow</span>
+  </div>
+  <div class="nav-actions">
+    <a *ngIf="isAuth" routerLink="/app/dashboard" class="btn-outline">Acessar app</a>
+    <ng-container *ngIf="!isAuth">
+      <a routerLink="/login" class="btn-outline">Entrar</a>
+      <button class="btn-primary" (click)="goApp()">Começar grátis</button>
+    </ng-container>
+  </div>
+</nav>
+
+<!-- ── Hero ────────────────────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-bg">
+    <div class="grid-lines"></div>
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="material-icons-round">bolt</span>
+      Controle financeiro em tempo real
+    </div>
+    <h1>Suas finanças,<br><span class="gradient-text">sob controle</span></h1>
+    <p class="hero-sub">
+      Dashboard inteligente com notificações WebSocket, metas, orçamentos mensais
+      e categorização automática de transações.
+    </p>
+    <div class="hero-actions">
+      <button class="btn-hero-primary" (click)="goApp()">
+        Começar grátis
+        <span class="material-icons-round">arrow_forward</span>
+      </button>
+      <a href="#features" class="btn-hero-ghost">Ver funcionalidades</a>
+    </div>
+    <div class="hero-trust">
+      <span class="material-icons-round">shield</span> Autenticação via Keycloak
+      &nbsp;·&nbsp;
+      <span class="material-icons-round">lock</span> Token em memória
+      &nbsp;·&nbsp;
+      <span class="material-icons-round">security</span> Cookie HttpOnly
+    </div>
+  </div>
+
+  <!-- Dashboard mockup -->
+  <div class="hero-mockup">
+    <div class="mockup-card">
+      <div class="mockup-header">
+        <span class="dot dot-red"></span>
+        <span class="dot dot-yellow"></span>
+        <span class="dot dot-green"></span>
+      </div>
+      <div class="mockup-stats">
+        <div class="mockup-stat">
+          <span class="ms-label">Saldo Total</span>
+          <span class="ms-value text-green">R$ 12.480,00</span>
+        </div>
+        <div class="mockup-stat">
+          <span class="ms-label">Receitas</span>
+          <span class="ms-value">R$ 8.500,00</span>
+        </div>
+        <div class="mockup-stat">
+          <span class="ms-label">Despesas</span>
+          <span class="ms-value text-red">R$ 3.240,00</span>
+        </div>
+      </div>
+      <div class="mockup-bar-container">
+        <div class="mockup-bar-label"><span>Gastos do mês</span><span class="text-green">38%</span></div>
+        <div class="mockup-bar"><div class="mockup-bar-fill" style="width:38%"></div></div>
+      </div>
+      <div class="mockup-txs">
+        <div class="mockup-tx" *ngFor="let tx of [
+          {d:'iFood', v:'-R$ 45,00', t:'despesa'},
+          {d:'Salário', v:'+R$ 8.500,00', t:'receita'},
+          {d:'Uber', v:'-R$ 22,00', t:'despesa'}
+        ]">
+          <div class="mockup-tx-dot" [class.green]="tx.t==='receita'" [class.red]="tx.t==='despesa'"></div>
+          <span class="mockup-tx-desc">{{ tx.d }}</span>
+          <span class="mockup-tx-val" [class.text-green]="tx.t==='receita'" [class.text-red]="tx.t==='despesa'">{{ tx.v }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Features ────────────────────────────────────────────────────────── -->
+<section class="features-section" id="features">
+  <div class="section-container">
+    <div class="section-label">Funcionalidades</div>
+    <h2>Tudo que você precisa para<br>controlar suas finanças</h2>
+    <div class="features-grid">
+      <div class="feature-card" *ngFor="let f of features">
+        <div class="feature-icon">
+          <span class="material-icons-round">{{ f.icon }}</span>
+        </div>
+        <h3>{{ f.title }}</h3>
+        <p>{{ f.desc }}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Plans ───────────────────────────────────────────────────────────── -->
+<section class="plans-section" id="planos">
+  <div class="section-container">
+    <div class="section-label">Planos</div>
+    <h2>Simples, sem surpresas</h2>
+    <div class="plans-grid">
+      <div class="plan-card" *ngFor="let p of plans" [class.highlight]="p.highlight">
+        <div class="plan-badge" *ngIf="p.highlight">Mais popular</div>
+        <div class="plan-name">{{ p.name }}</div>
+        <div class="plan-price">
+          {{ p.price }}<span class="plan-period">{{ p.period }}</span>
+        </div>
+        <ul class="plan-features">
+          <li *ngFor="let f of p.features">
+            <span class="material-icons-round">check</span>{{ f }}
+          </li>
+        </ul>
+        <button class="plan-cta" [class.primary]="p.highlight" (click)="goApp()">
+          {{ p.cta }}
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ──────────────────────────────────────────────────────────── -->
+<footer class="footer">
+  <div class="footer-brand">
+    <span class="material-icons-round">trending_up</span>
+    <span>FinanceFlow</span>
+  </div>
+  <p class="footer-copy">© 2025 FinanceFlow. Todos os direitos reservados.</p>
+</footer>
