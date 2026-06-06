@@ -1,0 +1,58 @@
+<div class="shell" [class.collapsed]="collapsed()">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <span class="material-icons-round logo-icon">trending_up</span>
+        <span class="logo-text">FinanceFlow</span>
+      </div>
+      <button class="icon-btn" (click)="toggle()">
+        <span class="material-icons-round">{{ collapsed() ? 'chevron_right' : 'chevron_left' }}</span>
+      </button>
+    </div>
+
+    <nav class="nav">
+      <a *ngFor="let item of navItems"
+         [routerLink]="item.route"
+         routerLinkActive="active"
+         class="nav-item"
+         [matTooltip]="collapsed() ? item.label : ''"
+         matTooltipPosition="right">
+        <span class="material-icons-round">{{ item.icon }}</span>
+        <span class="nav-label">{{ item.label }}</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a routerLink="/app/subscription" routerLinkActive="active" class="nav-item"
+         [matTooltip]="collapsed() ? 'Plano' : ''" matTooltipPosition="right">
+        <span class="material-icons-round">workspace_premium</span>
+        <span class="nav-label">Plano</span>
+      </a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="icon-btn mobile-toggle" (click)="toggle()">
+        <span class="material-icons-round">menu</span>
+      </button>
+      <div class="topbar-right">
+        <button class="icon-btn" routerLink="/app/notifications"
+                [matBadge]="unread() > 0 ? unread() : null"
+                matBadgeColor="warn" matBadgeSize="small"
+                matTooltip="Notificações">
+          <span class="material-icons-round">notifications</span>
+        </button>
+        <button class="avatar-btn" [matMenuTriggerFor]="userMenu">
+          <div class="avatar"><span class="material-icons-round">person</span></div>
+        </button>
+        <mat-menu #userMenu="matMenu">
+          <button mat-menu-item (click)="logout()">
+            <span class="material-icons-round" style="margin-right:8px;font-size:18px">logout</span>Sair
+          </button>
+        </mat-menu>
+      </div>
+    </header>
+    <main class="content"><router-outlet /></main>
+  </div>
+</div>
