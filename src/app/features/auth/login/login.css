@@ -1,0 +1,149 @@
+.login-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      position: relative;
+    }
+ 
+    .login-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+    }
+ 
+    .grid-lines {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(59,130,246,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59,130,246,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+ 
+    .glow {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+    }
+    .glow-1 {
+      width: 500px; height: 500px;
+      background: rgba(0,200,150,0.08);
+      top: -100px; left: -100px;
+    }
+    .glow-2 {
+      width: 400px; height: 400px;
+      background: rgba(59,130,246,0.08);
+      bottom: -80px; right: -80px;
+    }
+ 
+    .login-card {
+      position: relative;
+      z-index: 1;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: var(--shadow-card);
+      animation: fadeIn 0.4s ease;
+    }
+ 
+    .brand {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+ 
+    .brand-icon {
+      width: 64px; height: 64px;
+      background: var(--green-dim);
+      border: 1px solid rgba(0,200,150,0.3);
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+    }
+ 
+    .brand-icon .material-icons-round {
+      font-size: 32px;
+      color: var(--green);
+    }
+ 
+    .brand h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+ 
+    .brand p {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+ 
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 28px 0;
+    }
+ 
+    .features {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+ 
+    .feature {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-secondary);
+      font-size: 13px;
+    }
+ 
+    .feature .material-icons-round {
+      font-size: 18px;
+      color: var(--green);
+    }
+ 
+    .login-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--green);
+      color: #050d1a;
+      border: none;
+      border-radius: var(--radius-md);
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+      letter-spacing: 0.01em;
+    }
+ 
+    .login-btn:hover {
+      background: #00dea8;
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-glow-green);
+    }
+ 
+    .login-btn:active {
+      transform: translateY(0);
+    }
+ 
+    .footer-note {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 11px;
+      margin-top: 20px;
+    }

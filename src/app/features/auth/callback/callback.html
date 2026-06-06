@@ -1,0 +1,27 @@
+<div class="callback-page">
+  <div class="spinner-container">
+
+    <div class="spinner"></div>
+
+    @if (!error) {
+      <p>Autenticando...</p>
+    }
+
+    @if (error) {
+      <div class="error-state">
+
+        <span class="material-icons-round">
+          error_outline
+        </span>
+
+        <p>{{ error }}</p>
+
+        <button (click)="goLogin()">
+          Tentar novamente
+        </button>
+
+      </div>
+    }
+
+  </div>
+</div>
