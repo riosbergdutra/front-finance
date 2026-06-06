@@ -1,0 +1,137 @@
+<div class="page-enter">
+  <div class="page-header">
+    <h2>Dashboard</h2>
+    <span class="text-secondary">
+      Visão geral financeira
+    </span>
+  </div>
+
+  <ng-container *ngIf="loading()">
+    <div class="cards-grid">
+      <div
+        class="skeleton"
+        style="height:110px;border-radius:16px"
+        *ngFor="let i of [1,2,3,4]"
+      ></div>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="!loading() && data()">
+
+    <!-- cards -->
+
+    <div class="cards-grid">
+
+      <div class="stat-card">
+        <div class="stat-label">
+          <span class="material-icons-round">
+            account_balance
+          </span>
+          Saldo Total
+        </div>
+
+        <div class="stat-value mono">
+          {{ data()!.saldoTotal |
+          currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+        </div>
+
+        <div class="stat-sub">
+          <span class="badge badge-blue">
+            {{ data()!.contasAtivas }}
+            contas ativas
+          </span>
+        </div>
+      </div>
+
+      <!-- restante dos cards aqui -->
+
+    </div>
+
+    <!-- últimas transações -->
+
+    <div
+      class="section-card"
+      *ngIf="recentTx().length > 0"
+    >
+      <div class="section-header">
+        <span>Transações recentes</span>
+
+        <a
+          routerLink="/app/transactions"
+          class="see-all"
+        >
+          Ver todas →
+        </a>
+      </div>
+
+      <div class="tx-list">
+
+        <div
+          class="tx-row"
+          *ngFor="let tx of recentTx()"
+        >
+
+          <div
+            class="tx-icon"
+            [style.background]="
+              tx.tipo === 'RECEITA'
+                ? 'var(--green-dim)'
+                : 'var(--red-dim)'
+            "
+          >
+            <span
+              class="material-icons-round"
+              [style.color]="
+                tx.tipo === 'RECEITA'
+                  ? 'var(--green)'
+                  : 'var(--red)'
+              "
+            >
+              {{
+                tx.tipo === 'RECEITA'
+                  ? 'arrow_downward'
+                  : 'arrow_upward'
+              }}
+            </span>
+          </div>
+
+          <div class="tx-info">
+            <span class="tx-desc">
+              {{
+                tx.descricao ||
+                tx.estabelecimento ||
+                'Sem descrição'
+              }}
+            </span>
+
+            <span class="tx-cat text-secondary">
+              {{
+                tx.categoryNome ||
+                'Sem categoria'
+              }}
+            </span>
+          </div>
+
+          <div
+            class="tx-valor mono"
+            [class.text-green]="tx.tipo === 'RECEITA'"
+            [class.text-red]="tx.tipo === 'DESPESA'"
+          >
+            {{
+              tx.tipo === 'RECEITA'
+                ? '+'
+                : '-'
+            }}
+            {{
+              tx.valor |
+              currency:'BRL':'symbol':'1.2-2':'pt-BR'
+            }}
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+  </ng-container>
+</div>
