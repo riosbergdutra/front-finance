@@ -1,10 +1,11 @@
+
 export type AccountType =
-  | 'CHECKING'
-  | 'SAVINGS'
-  | 'CREDIT_CARD'
-  | 'INVESTMENT'
+  | 'CORRENTE'
+  | 'POUPANCA'
+  | 'CARTAO_CREDITO'
+  | 'INVESTIMENTO'
   | 'DINHEIRO'
-  | 'OTHER';
+  | 'CARTEIRA_DIGITAL';
 
 export interface AccountResponse {
   id: string;
