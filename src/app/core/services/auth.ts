@@ -1,29 +1,45 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap, catchError, throwError, BehaviorSubject } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { AuthResponse } from '../models';
 
-export interface AuthResponse {
-  access_token: string;
-  sessionId?: string;
-}
-
+/**
+ * Autenticação BFF stateless:
+ * - access_token → memória (signal) — nunca localStorage
+ * - SESSION_ID   → cookie HttpOnly gerenciado pelo backend
+ *
+ * F5 / Reload:
+ * O token em memória é perdido. O authGuard chama refresh() automaticamente.
+ * Se o cookie SESSION_ID ainda for válido, o backend devolve um novo access_token
+ * e o usuário permanece logado sem precisar fazer login novamente.
+ */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly api = environment.apiUrl;
-  private _token = signal<string | null>(null);
+  private readonly http   = inject(HttpClient);
+  private readonly router = inject(Router);
+  private readonly api    = environment.apiUrl;
 
-  readonly accessToken = computed(() => this._token());
-  readonly isAuthenticated = computed(() => this._token() !== null);
+  private _accessToken = signal<string | null>(null);
 
-  private _refreshing$ = new BehaviorSubject(false);
-  get isRefreshing$() { return this._refreshing$.asObservable(); }
-  getIsRefreshing(): boolean { return this._refreshing$.getValue(); }
+  readonly accessToken    = computed(() => this._accessToken());
+  readonly isAuthenticated = computed(() => this._accessToken() !== null);
 
-  constructor(private http: HttpClient, private router: Router) {}
+  private refreshing$ = new BehaviorSubject<boolean>(false);
 
-  login(): void { window.location.href = `${this.api}/auth/login`; }
+  get isRefreshing$() {
+    return this.refreshing$.asObservable();
+  }
+
+  /** Valor atual do BehaviorSubject — usado pelo interceptor (não o Observable) */
+  getIsRefreshing(): boolean {
+    return this.refreshing$.getValue();
+  }
+
+  login(): void {
+    window.location.href = `${this.api}/auth/login`;
+  }
 
   handleCallback(code: string): Observable<AuthResponse> {
     const body = new URLSearchParams({ code });
@@ -33,19 +49,26 @@ export class AuthService {
         withCredentials: true,
       })
       .pipe(
-        tap((res) => this._token.set(res.access_token)),
-        catchError((err) => { this._token.set(null); return throwError(() => err); })
+        tap((res) => this._accessToken.set(res.access_token)),
+        catchError((err) => {
+          this._accessToken.set(null);
+          return throwError(() => err);
+        })
       );
   }
 
   refresh(): Observable<AuthResponse> {
-    this._refreshing$.next(true);
+    this.refreshing$.next(true);
     return this.http
       .post<AuthResponse>(`${this.api}/auth/refresh`, {}, { withCredentials: true })
       .pipe(
-        tap((res) => { this._token.set(res.access_token); this._refreshing$.next(false); }),
+        tap((res) => {
+          this._accessToken.set(res.access_token);
+          this.refreshing$.next(false);
+        }),
         catchError((err) => {
-          this._token.set(null); this._refreshing$.next(false);
+          this._accessToken.set(null);
+          this.refreshing$.next(false);
           this.router.navigate(['/login']);
           return throwError(() => err);
         })
@@ -53,13 +76,15 @@ export class AuthService {
   }
 
   logout(): void {
-    this._token.set(null);
-    this.http.post(`${this.api}/auth/logout`, {}, { withCredentials: true }).subscribe({
-      complete: () => this.router.navigate(['/']),
-      error: () => this.router.navigate(['/']),
-    });
+    this._accessToken.set(null);
+    this.http
+      .post(`${this.api}/auth/logout`, {}, { withCredentials: true })
+      .subscribe({
+        complete: () => this.router.navigate(['/login']),
+        error:    () => this.router.navigate(['/login']),
+      });
   }
 
-  setToken(t: string): void { this._token.set(t); }
-  getToken(): string | null { return this._token(); }
+  setToken(token: string): void  { this._accessToken.set(token); }
+  getToken():          string | null { return this._accessToken(); }
 }
