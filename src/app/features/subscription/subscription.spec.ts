@@ -4,7 +4,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { Subscription } from './subscription';
-import { SubscriptionService } from '../../core/services/subscription';
+import { SubscriptionResponse } from '../../core/models';
 
 describe('SubscriptionComponent', () => {
   let fixture: ComponentFixture<Subscription>;
@@ -39,7 +39,7 @@ describe('SubscriptionComponent', () => {
   });
 
   it('limiteContasLabel retorna "3 contas" para FREE', () => {
-    component['plan'].set({ plano: 'FREE', status: 'ACTIVE', isPro: false, diasParaExpirar: -1, limiteContas: 3, limiteTransacoesMes: 100 } as any);
+    component['plan'].set({ plano: 'FREE', status: 'ACTIVE', isPro: false, diasParaExpirar: -1, limiteContas: 3, limiteTransacoesMes: 100 } as SubscriptionResponse);
     expect(component.limiteContasLabel()).toBe('3 contas');
   });
 
