@@ -61,7 +61,7 @@ export class AccountsComponent implements OnInit {
     this.load();
     this.subscriptionService.getMyPlan().subscribe({
       next: (s) => this.subscription.set(s),
-      error: () => {},
+      error: () => undefined,
     });
   }
 
