@@ -30,6 +30,7 @@ describe('AuthService', () => {
     service  = TestBed.inject(AuthService);
     http     = TestBed.inject(HttpTestingController);
     router   = TestBed.inject(Router);
+    vi.spyOn(router, 'navigate').mockResolvedValue(true);
   });
 
   afterEach(() => http.verify());
@@ -87,8 +88,6 @@ describe('AuthService', () => {
   });
 
   it('refresh em falha limpa o token e redireciona para /login', () => {
-    vi.spyOn(router, 'navigate');
-
     service.refresh().subscribe({ error: () => undefined });
 
     http.expectOne(`${API}/auth/refresh`).flush(
