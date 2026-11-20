@@ -47,7 +47,7 @@ describe('authGuard', () => {
 
   it('tenta refresh quando não autenticado e permite após sucesso', async () => {
     vi.mocked(auth.isAuthenticated).mockReturnValue(false);
-    vi.mocked(auth.refresh).mockReturnValue(of({ access_token: 'new' });
+    vi.mocked(auth.refresh).mockReturnValue(of({ access_token: 'new' }));
 
     const result = await resolveGuard(authGuard);
 
