@@ -16,12 +16,16 @@ export class CallbackComponent implements OnInit {
   private readonly auth = inject(AuthService);
 
   ngOnInit(): void {
-    // O BFF já concluiu o code exchange e criou o cookie HttpOnly.
-    // O frontend recebe somente um redirect limpo e recupera o access token via sessão.
+    // O BFF concluiu o code exchange e criou o cookie HttpOnly.
+    // O frontend apenas confirma a sessão; nenhum token OAuth é recebido.
     this.auth.checkSession().subscribe({
-      next: (session) => session.authenticated
-        ? this.router.navigate(['/app/dashboard'], { replaceUrl: true })
-        : this.goLogin(),
+      next: (session) => {
+        if (session.authenticated) {
+          this.router.navigate(['/app/dashboard'], { replaceUrl: true });
+        } else {
+          this.goLogin();
+        }
+      },
       error: () => {
         this.error = 'Falha na autenticação. Tente novamente.';
         this.loading = false;
