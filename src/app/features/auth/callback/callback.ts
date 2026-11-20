@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
@@ -16,12 +16,10 @@ export class CallbackComponent implements OnInit {
   error: string | null = null;
   loading = true;
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private auth: AuthService,
-    private http: HttpClient
-  ) {}
+    private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly auth = inject(AuthService);
+  private readonly http = inject(HttpClient);
 
   ngOnInit(): void {
     this.route.queryParams.subscribe({
