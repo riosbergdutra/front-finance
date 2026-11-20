@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -11,7 +11,7 @@ const API = environment.apiUrl;
 
 @Injectable({ providedIn: 'root' })
 export class BudgetService {
-  constructor(private http: HttpClient) {}
+    private readonly http = inject(HttpClient);
 
   list(
     mes: number,
