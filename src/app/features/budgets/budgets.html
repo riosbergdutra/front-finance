@@ -16,18 +16,24 @@
     </div>
   </div>
 
-  <div class="loading-center" *ngIf="loading()">
+  @if (loading()) {
+<div class="loading-center" >
     <div class="spinner"></div>
   </div>
+}
 
-  <div class="empty-state" *ngIf="!loading() && budgets().length === 0">
+  @if (!loading() && budgets().length === 0) {
+<div class="empty-state" >
     <span class="material-icons-round">donut_small</span>
     <p>Nenhum orçamento para este mês</p>
     <button class="btn-primary" (click)="openForm()">Criar primeiro orçamento</button>
   </div>
+}
 
-  <div class="budgets-grid" *ngIf="!loading() && budgets().length > 0">
-    <div class="budget-card" *ngFor="let b of budgets()">
+  @if (!loading() && budgets().length > 0) {
+<div class="budgets-grid" >
+    @for (b of budgets(); track b) {
+<div class="budget-card" >
       <div class="budget-header">
         <div class="budget-title">
           <div class="budget-icon">
@@ -57,19 +63,24 @@
       </div>
 
       <div class="budget-footer">
-        <span *ngIf="b.alertaEm" class="alert-badge">
+        @if (b.alertaEm) {
+<span  class="alert-badge">
           <span class="material-icons-round">notifications</span> Alerta em {{ b.alertaEm }}%
         </span>
+}
         <span class="restante" [class.text-red]="b.percentualGasto >= 100">
           {{ b.percentualGasto >= 100 ? 'Limite excedido' : 'Restam ' + ((b.valorLimite - b.valorGasto) | currency:'BRL':'symbol':'1.2-2':'pt-BR') }}
         </span>
       </div>
     </div>
+}
   </div>
+}
 
   <!-- Dialog -->
-  <div class="dialog-overlay" *ngIf="showForm()" (click)="closeForm()">
-    <div class="dialog-card" (click)="$event.stopPropagation()">
+  @if (showForm()) {
+<div class="dialog-overlay"  tabindex="-1" role="presentation" (click)="closeForm()" (keydown.escape)="closeForm()">
+    <div class="dialog-card" tabindex="0" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
       <div class="dialog-header">
         <h3>{{ editing() ? 'Editar orçamento' : 'Novo orçamento' }}</h3>
         <button class="icon-btn" (click)="closeForm()"><span class="material-icons-round">close</span></button>
@@ -79,7 +90,9 @@
           <mat-label>Categoria (opcional)</mat-label>
           <mat-select formControlName="categoryId">
             <mat-option [value]="null">Sem categoria (geral)</mat-option>
-            <mat-option *ngFor="let c of categories()" [value]="c.id">{{ c.nome }}</mat-option>
+            @for (c of categories(); track c) {
+<mat-option  [value]="c.id">{{ c.nome }}</mat-option>
+}
           </mat-select>
         </mat-form-field>
         <mat-form-field appearance="outline" class="full-width">
@@ -99,4 +112,5 @@
       </form>
     </div>
   </div>
+}
 </div>
