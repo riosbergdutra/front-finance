@@ -1,5 +1,5 @@
 import { CommonModule, CurrencyPipe, DatePipe } from "@angular/common";
-import { Component, OnInit, signal } from "@angular/core";
+import { Component, OnInit, signal, inject } from "@angular/core";
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
@@ -7,7 +7,7 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatSelectModule } from "@angular/material/select";
 import { MatSnackBar, MatSnackBarModule } from "@angular/material/snack-bar";
 import { MatPaginatorModule, PageEvent } from "@angular/material/paginator";
-import { AccountResponse, CategoryResponse, TransactionResponse } from "../../core/models";
+import { AccountResponse, CategoryResponse, TransactionResponse, TransactionType } from "../../core/models";
 import { TransactionService } from "../../core/services/transaction";
 import { AccountService } from "../../core/services/account";
 import { CategoryService } from "../../core/services/category";
@@ -149,7 +149,7 @@ export class TransactionsComponent implements OnInit {
     const value = this.form.value;
 
     this.txService.create({
-      tipo: value.tipo as any,
+      tipo: value.tipo as TransactionType,
       accountId: value.accountId!,
       valor: value.valor!,
       data: value.data!,
