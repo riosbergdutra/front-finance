@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -21,11 +21,9 @@ export class Subscription implements OnInit {
   exportDe = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
   exportAte = new Date().toISOString().split('T')[0];
 
-  constructor(
-    private subscriptionService: SubscriptionService,
-    private http: HttpClient,
-    private snack: MatSnackBar
-  ) {}
+    private readonly subscriptionService = inject(SubscriptionService);
+  private readonly http = inject(HttpClient);
+  private readonly snack = inject(MatSnackBar);
 
   ngOnInit(): void {
     this.subscriptionService.getMyPlan().subscribe({
