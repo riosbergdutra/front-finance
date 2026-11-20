@@ -1,5 +1,5 @@
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { CanActivateFn, UrlTree } from '@angular/router';
+import { ActivatedRouteSnapshot, CanActivateFn, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { provideRouter } from '@angular/router';
 import { vi } from 'vitest';
 import { of, throwError } from 'rxjs';
@@ -9,7 +9,7 @@ import { AuthService } from '../../../app/core/services/auth';
 
 const runGuard = (guard: CanActivateFn) =>
   TestBed.runInInjectionContext(() =>
-    guard({} as any, {} as any)
+    guard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot)
   );
 
 describe('authGuard', () => {
