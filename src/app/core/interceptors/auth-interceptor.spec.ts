@@ -1,6 +1,4 @@
-import 'zone.js';
-import 'zone.js/testing';
-import { TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import {
   HttpClient,
   provideHttpClient,
@@ -40,64 +38,58 @@ describe('authInterceptor', () => {
 
   // ── Rotas públicas ───────────────────────────────────────────────────────
 
-  it('não adiciona token em rotas públicas (/auth/callback)', fakeAsync(() => {
+  it('não adiciona token em rotas públicas (/auth/callback)', () => {
     http.post(`${API}/auth/callback`, {}).subscribe();
 
     const req = httpMock.expectOne(`${API}/auth/callback`);
     expect(req.request.headers.has('Authorization')).toBe(false);
     req.flush({ access_token: 'x' });
-    tick();
-  }));
+  });
 
-  it('não adiciona token em /auth/refresh', fakeAsync(() => {
+  it('não adiciona token em /auth/refresh', () => {
     http.post(`${API}/auth/refresh`, {}).subscribe();
 
     const req = httpMock.expectOne(`${API}/auth/refresh`);
     expect(req.request.headers.has('Authorization')).toBe(false);
     req.flush({ access_token: 'x' });
-    tick();
-  }));
+  });
 
   // ── Requests autenticadas ────────────────────────────────────────────────
 
-  it('adiciona Bearer token quando há token em memória', fakeAsync(() => {
+  it('adiciona Bearer token quando há token em memória', () => {
     auth.setToken('meu-token');
     http.get(`${API}/accounts`).subscribe();
 
     const req = httpMock.expectOne(`${API}/accounts`);
     expect(req.request.headers.get('Authorization')).toBe('Bearer meu-token');
     req.flush([]);
-    tick();
-  }));
+  });
 
-  it('envia withCredentials: true para transportar o cookie SESSION_ID', fakeAsync(() => {
+  it('envia withCredentials: true para transportar o cookie SESSION_ID', () => {
     auth.setToken('meu-token');
     http.get(`${API}/accounts`).subscribe();
 
     const req = httpMock.expectOne(`${API}/accounts`);
     expect(req.request.withCredentials).toBe(true);
     req.flush([]);
-    tick();
-  }));
+  });
 
-  it('não adiciona Authorization quando não há token', fakeAsync(() => {
+  it('não adiciona Authorization quando não há token', () => {
     http.get(`${API}/accounts`).subscribe({ error: () => undefined });
 
     const req = httpMock.expectOne(`${API}/accounts`);
     expect(req.request.headers.has('Authorization')).toBe(false);
     req.flush({}, { status: 401, statusText: 'Unauthorized' });
-    tick();
 
     // Após 401 sem token, tenta refresh
     httpMock.expectOne(`${API}/auth/refresh`).flush(
       {}, { status: 401, statusText: 'Unauthorized' }
     );
-    tick();
-  }));
+  });
 
   // ── Refresh automático em 401 ────────────────────────────────────────────
 
-  it('faz refresh e reexecuta a request em 401', fakeAsync(() => {
+  it('faz refresh e reexecuta a request em 401', () => {
     auth.setToken('token-expirado');
     let result: unknown;
 
@@ -106,23 +98,20 @@ describe('authInterceptor', () => {
     // Primeira tentativa → 401
     const first = httpMock.expectOne(`${API}/transactions`);
     first.flush({}, { status: 401, statusText: 'Unauthorized' });
-    tick();
 
     // Interceptor faz refresh
     const refresh = httpMock.expectOne(`${API}/auth/refresh`);
     refresh.flush({ access_token: 'novo-token' });
-    tick();
 
     // Reexecuta com novo token
     const retry = httpMock.expectOne(`${API}/transactions`);
     expect(retry.request.headers.get('Authorization')).toBe('Bearer novo-token');
     retry.flush([{ id: '1' }]);
-    tick();
 
     expect(result).toEqual([{ id: '1' }]);
-  }));
+  });
 
-  it('propaga o erro se o refresh também falhar', fakeAsync(() => {
+  it('propaga o erro se o refresh também falhar', () => {
     auth.setToken('token-expirado');
     let errorCaptured = false;
 
@@ -131,13 +120,11 @@ describe('authInterceptor', () => {
     httpMock.expectOne(`${API}/transactions`).flush(
       {}, { status: 401, statusText: 'Unauthorized' }
     );
-    tick();
 
     httpMock.expectOne(`${API}/auth/refresh`).flush(
       {}, { status: 401, statusText: 'Unauthorized' }
     );
-    tick();
 
     expect(errorCaptured).toBe(true);
-  }));
+  });
 });
