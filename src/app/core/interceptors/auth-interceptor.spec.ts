@@ -8,7 +8,8 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
-import { provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
+import { vi } from 'vitest';
 
 import { authInterceptor } from '../../../app/core/interceptors/auth-interceptor';
 import { AuthService } from '../../../app/core/services/auth';
@@ -17,6 +18,7 @@ describe('authInterceptor', () => {
   let http: HttpClient;
   let httpMock: HttpTestingController;
   let auth: AuthService;
+  let router: Router;
 
   const API = 'http://localhost:8080';
 
@@ -32,6 +34,8 @@ describe('authInterceptor', () => {
     http     = TestBed.inject(HttpClient);
     httpMock = TestBed.inject(HttpTestingController);
     auth     = TestBed.inject(AuthService);
+    router   = TestBed.inject(Router);
+    vi.spyOn(router, 'navigate').mockResolvedValue(true);
   });
 
   afterEach(() => httpMock.verify());
