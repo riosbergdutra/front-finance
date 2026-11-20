@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { ActivatedRouteSnapshot, CanActivateFn, RouterStateSnapshot, UrlTree } from '@angular/router';
-import { provideRouter } from '@angular/router';
+import { ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot, UrlTree, provideRouter } from '@angular/router';
 import { vi } from 'vitest';
 import { firstValueFrom, isObservable, of, throwError } from 'rxjs';
 
@@ -17,8 +16,9 @@ const resolveGuard = async (guard: CanActivateFn) => {
   return isObservable(result) ? firstValueFrom(result) : result;
 };
 
-describe('authGuard', () => {
+describe('authGuard (BFF session)', () => {
   let auth: AuthService;
+  let router: Router;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -26,47 +26,35 @@ describe('authGuard', () => {
         provideRouter([]),
         {
           provide: AuthService,
-          useValue: {
-            isAuthenticated: vi.fn(),
-            refresh: vi.fn(),
-          },
+          useValue: { checkSession: vi.fn() },
         },
       ],
     });
-
     auth = TestBed.inject(AuthService);
+    router = TestBed.inject(Router);
   });
 
-  it('permite acesso quando já autenticado', async () => {
-    vi.mocked(auth.isAuthenticated).mockReturnValue(true);
-
-    const result = await resolveGuard(authGuard);
-
-    expect(result).toBe(true);
+  it('permite acesso quando a sessão do servidor está autenticada', async () => {
+    vi.mocked(auth.checkSession).mockReturnValue(of({ authenticated: true }));
+    expect(await resolveGuard(authGuard)).toBe(true);
   });
 
-  it('tenta refresh quando não autenticado e permite após sucesso', async () => {
-    vi.mocked(auth.isAuthenticated).mockReturnValue(false);
-    vi.mocked(auth.refresh).mockReturnValue(of({ access_token: 'new' }));
-
+  it('redireciona para /login quando a sessão não está autenticada', async () => {
+    vi.mocked(auth.checkSession).mockReturnValue(of({ authenticated: false }));
     const result = await resolveGuard(authGuard);
-
-    expect(auth.refresh).toHaveBeenCalled();
-    expect(result).toBe(true);
+    expect(result).toBeInstanceOf(UrlTree);
+    expect((result as UrlTree).toString()).toBe('/login');
   });
 
-  it('redireciona para /login quando refresh falha (F5 com sessão expirada)', async () => {
-    vi.mocked(auth.isAuthenticated).mockReturnValue(false);
-    vi.mocked(auth.refresh).mockReturnValue(throwError(() => new Error('401')));
-
+  it('redireciona para /login quando a consulta da sessão falha', async () => {
+    vi.mocked(auth.checkSession).mockReturnValue(throwError(() => new Error('401')));
     const result = await resolveGuard(authGuard);
-
     expect(result).toBeInstanceOf(UrlTree);
     expect((result as UrlTree).toString()).toBe('/login');
   });
 });
 
-describe('guestGuard', () => {
+describe('guestGuard (BFF session)', () => {
   let auth: AuthService;
 
   beforeEach(() => {
@@ -75,27 +63,27 @@ describe('guestGuard', () => {
         provideRouter([]),
         {
           provide: AuthService,
-          useValue: { isAuthenticated: vi.fn() },
+          useValue: { checkSession: vi.fn() },
         },
       ],
     });
     auth = TestBed.inject(AuthService);
   });
 
-  it('permite acesso quando não autenticado', async () => {
-    vi.mocked(auth.isAuthenticated).mockReturnValue(false);
-
-    const result = await resolveGuard(guestGuard);
-
-    expect(result).toBe(true);
+  it('permite acesso de convidados quando não há sessão autenticada', async () => {
+    vi.mocked(auth.checkSession).mockReturnValue(of({ authenticated: false }));
+    expect(await resolveGuard(guestGuard)).toBe(true);
   });
 
-  it('redireciona para /dashboard quando já autenticado', async () => {
-    vi.mocked(auth.isAuthenticated).mockReturnValue(true);
-
+  it('redireciona para o dashboard quando já existe sessão autenticada', async () => {
+    vi.mocked(auth.checkSession).mockReturnValue(of({ authenticated: true }));
     const result = await resolveGuard(guestGuard);
-
     expect(result).toBeInstanceOf(UrlTree);
     expect((result as UrlTree).toString()).toBe('/app/dashboard');
+  });
+
+  it('permite acesso de convidados quando a consulta da sessão falha', async () => {
+    vi.mocked(auth.checkSession).mockReturnValue(throwError(() => new Error('401')));
+    expect(await resolveGuard(guestGuard)).toBe(true);
   });
 });
