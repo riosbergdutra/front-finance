@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot, UrlTree, provideRouter } from '@angular/router';
+import { ActivatedRouteSnapshot, CanActivateFn, RouterStateSnapshot, UrlTree, provideRouter } from '@angular/router';
 import { vi } from 'vitest';
 import { firstValueFrom, isObservable, of, throwError } from 'rxjs';
 
@@ -18,7 +18,6 @@ const resolveGuard = async (guard: CanActivateFn) => {
 
 describe('authGuard (BFF session)', () => {
   let auth: AuthService;
-  let router: Router;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -31,7 +30,6 @@ describe('authGuard (BFF session)', () => {
       ],
     });
     auth = TestBed.inject(AuthService);
-    router = TestBed.inject(Router);
   });
 
   it('permite acesso quando a sessão do servidor está autenticada', async () => {
