@@ -1,6 +1,7 @@
 import { inject } from '@angular/core';
 import {
   HttpErrorResponse,
+  HttpEvent,
   HttpInterceptorFn,
   HttpRequest,
   HttpResponse,
@@ -104,7 +105,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const isAuthEndpoint = req.url === `${API_URL}/auth`
     || req.url.startsWith(`${API_URL}/auth/`);
 
-  const sendRequest = (): Observable<unknown> => {
+  const sendRequest = (): Observable<HttpEvent<unknown>> => {
     if (SAFE_METHODS.includes(req.method.toUpperCase())) {
       return next(credentialed);
     }
