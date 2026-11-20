@@ -37,7 +37,7 @@ export class ShellComponent implements OnInit, OnDestroy {
   private readonly notifSvc = inject(NotificationService);
 
   ngOnInit(): void {
-    this.notifSvc.listUnread().subscribe({ next: (l) => this.unread.set(l.length), error: () => {} });
+    this.notifSvc.listUnread().subscribe({ next: (l) => this.unread.set(l.length), error: () => undefined });
     this.wsSub = this.ws.connect().subscribe(() => this.unread.update((n) => n + 1));
   }
 
