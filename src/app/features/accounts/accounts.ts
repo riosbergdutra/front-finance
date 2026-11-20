@@ -115,7 +115,7 @@ export class AccountsComponent implements OnInit {
         this.snack.open(acc ? 'Conta atualizada!' : 'Conta criada!', '', { duration: 3000 });
         this.closeForm(); this.load(); this.saving.set(false);
         // Atualiza contagem do plano
-        this.subscriptionService.getMyPlan().subscribe({ next: (s) => this.subscription.set(s), error: () => {} });
+        this.subscriptionService.getMyPlan().subscribe({ next: (s) => this.subscription.set(s), error: () => this.snack.open('Não foi possível atualizar o plano.', '', { duration: 3000 }) });
       },
       error: (e: HttpErrorResponse) => {
         // 402 = limite do plano, 409 = nome duplicado, 400 = validação
