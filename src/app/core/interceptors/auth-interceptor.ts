@@ -6,7 +6,7 @@ import {
 import { environment } from '../../environments/environment';
 import { filter, map, switchMap } from 'rxjs';
 
-const API_URL = environment.apiUrl;
+const API_URL = environment.apiUrl.replace(/\\/+$/, '');
 const SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS', 'TRACE'];
 
 interface CsrfResponse {
@@ -18,7 +18,10 @@ interface CsrfResponse {
  * to unsafe requests. OAuth tokens are never read or attached by the browser.
  */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  if (!req.url.startsWith(API_URL)) {
+  // Match the API base URL as a complete path prefix, not an arbitrary string
+  // prefix (which could also match an attacker-controlled hostname).
+  const isApiRequest = req.url === API_URL || req.url.startsWith(`${API_URL}/`);
+  if (!isApiRequest) {
     return next(req);
   }
 
