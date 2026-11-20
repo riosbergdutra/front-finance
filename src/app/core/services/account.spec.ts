@@ -17,7 +17,7 @@ describe('AccountService', () => {
   const mockAccount: AccountResponse = {
     id: 'acc-1',
     name: 'Conta Corrente',
-    type: 'CHECKING',
+    type: 'CORRENTE',
     balance: 5000,
     currency: 'BRL',
     active: true,
@@ -34,7 +34,7 @@ describe('AccountService', () => {
       ],
     });
     service = TestBed.inject(AccountService);
-    http    = TestBed.inject(HttpTestingController);
+    http = TestBed.inject(HttpTestingController);
   });
 
   afterEach(() => http.verify());
@@ -52,7 +52,7 @@ describe('AccountService', () => {
   }));
 
   it('create() envia POST com body correto', fakeAsync(() => {
-    service.create({ name: 'Nova Conta', type: 'SAVINGS', initialBalance: 0 }).subscribe();
+    service.create({ name: 'Nova Conta', type: 'POUPANCA', initialBalance: 0 }).subscribe();
 
     const req = http.expectOne(`${API}/accounts`);
     expect(req.request.method).toBe('POST');
@@ -62,7 +62,7 @@ describe('AccountService', () => {
   }));
 
   it('update() envia PUT para o ID correto', fakeAsync(() => {
-    service.update('acc-1', { name: 'Atualizada', type: 'CHECKING' }).subscribe();
+    service.update('acc-1', { name: 'Atualizada', type: 'CORRENTE' }).subscribe();
 
     const req = http.expectOne(`${API}/accounts/acc-1`);
     expect(req.request.method).toBe('PUT');
