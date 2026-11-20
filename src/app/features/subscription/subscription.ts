@@ -35,17 +35,23 @@ export class Subscription implements OnInit {
   }
 
   upgrade(): void {
-    this.snack.open('Integração com Mercado Pago em breve!', '', { duration: 4000 });
+    this.snack.open(
+      'O PRO está em modo demonstrativo e o checkout está temporariamente desativado. Nenhuma cobrança será realizada.',
+      'Fechar',
+      { duration: 6000 }
+    );
   }
 
   exportExcel(): void {
     const url = `${environment.apiUrl}/export/excel?de=${this.exportDe}&ate=${this.exportAte}`;
     this.http.get(url, { responseType: 'blob' }).subscribe({
       next: (blob) => {
+        const objectUrl = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
+        a.href = objectUrl;
         a.download = `transacoes-${this.exportDe}-a-${this.exportAte}.xlsx`;
         a.click();
+        URL.revokeObjectURL(objectUrl);
       },
       error: () => this.snack.open('Erro ao exportar Excel', '', { duration: 3000, panelClass: 'error-snack' }),
     });
@@ -55,10 +61,12 @@ export class Subscription implements OnInit {
     const url = `${environment.apiUrl}/export/pdf?de=${this.exportDe}&ate=${this.exportAte}`;
     this.http.get(url, { responseType: 'blob' }).subscribe({
       next: (blob) => {
+        const objectUrl = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
+        a.href = objectUrl;
         a.download = `relatorio-${this.exportDe}-a-${this.exportAte}.pdf`;
         a.click();
+        URL.revokeObjectURL(objectUrl);
       },
       error: () => this.snack.open('Erro ao exportar PDF', '', { duration: 3000, panelClass: 'error-snack' }),
     });

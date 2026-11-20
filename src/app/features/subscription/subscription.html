@@ -1,13 +1,17 @@
 <div class="page-enter">
   <div class="page-header">
     <h2>Plano e Assinatura</h2>
-    <span class="text-secondary">Gerencie sua assinatura FinanceFlow</span>
+    <span class="text-secondary">Gerencie seu plano FinanceFlow</span>
+  </div>
+
+  <div class="demo-disclosure" role="note" aria-live="polite">
+    <strong>Ambiente demonstrativo:</strong> o plano PRO e o fluxo de assinatura estão em simulação.
+    Nenhum pagamento ou cobrança real será realizado. Não informe dados reais de cartão.
   </div>
 
   <div class="loading-center" *ngIf="loading()"><div class="spinner"></div></div>
 
   <ng-container *ngIf="!loading() && plan()">
-    <!-- Status do plano -->
     <div class="plan-status-card" [class.pro]="plan()!.isPro">
       <div class="plan-status-left">
         <div class="plan-badge-icon">
@@ -30,7 +34,6 @@
       </span>
     </div>
 
-    <!-- Limites atuais -->
     <div class="section-title">Limites do plano atual</div>
     <div class="limits-grid">
       <div class="limit-card">
@@ -61,32 +64,32 @@
       </div>
     </div>
 
-    <!-- Upgrade (FREE) -->
     <div class="upgrade-card" *ngIf="!plan()!.isPro">
       <div class="upgrade-left">
         <div class="upgrade-title">
           <span class="material-icons-round">rocket_launch</span>
-          Faça upgrade para o PRO
+          Conheça o PRO demonstrativo
         </div>
-        <p class="upgrade-desc">Contas ilimitadas, transações ilimitadas, exportação e Open Finance por R$ 19,90/mês.</p>
+        <p class="upgrade-desc">
+          Este ambiente permite demonstrar a experiência PRO. Não existe contratação comercial ativa,
+          preço vigente ou cobrança real nesta versão.
+        </p>
         <ul class="upgrade-features">
-          <li><span class="material-icons-round">check</span> Contas e transações ilimitadas</li>
+          <li><span class="material-icons-round">check</span> Contas e transações ilimitadas (demonstração)</li>
           <li><span class="material-icons-round">check</span> Exportar relatórios em Excel e PDF</li>
-          <li><span class="material-icons-round">check</span> Importar transações via Open Finance</li>
-          <li><span class="material-icons-round">check</span> Suporte prioritário</li>
+          <li><span class="material-icons-round">check</span> Recursos PRO sujeitos à disponibilidade do ambiente</li>
         </ul>
       </div>
       <div class="upgrade-right">
-        <div class="upgrade-price">R$ 19,90<span>/mês</span></div>
-        <button class="btn-upgrade" (click)="upgrade()">
-          <span class="material-icons-round">workspace_premium</span>
-          Assinar PRO
+        <div class="upgrade-price">PRO <span>demonstrativo</span></div>
+        <button class="btn-upgrade" type="button" (click)="upgrade()">
+          <span class="material-icons-round">info</span>
+          Sobre a simulação
         </button>
-        <p class="upgrade-note">Cancele quando quiser</p>
+        <p class="upgrade-note">Checkout temporariamente desativado</p>
       </div>
     </div>
 
-    <!-- Exportação (PRO) -->
     <div class="export-card" *ngIf="plan()!.isPro">
       <div class="section-title" style="margin-bottom:16px">Exportar relatório</div>
       <div class="export-row">
