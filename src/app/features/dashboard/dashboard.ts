@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -31,10 +31,8 @@ export class DashboardComponent implements OnInit {
   data = signal<DashboardResponse | null>(null);
   recentTx = signal<TransactionResponse[]>([]);
 
-  constructor(
-    private dashboardService: DashboardService,
-    private txService: TransactionService
-  ) {}
+    private readonly dashboardService = inject(DashboardService);
+  private readonly txService = inject(TransactionService);
 
   ngOnInit(): void {
     const today = new Date();
