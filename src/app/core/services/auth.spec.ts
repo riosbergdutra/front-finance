@@ -8,9 +8,9 @@ import { Router } from '@angular/router';
 import { provideRouter } from '@angular/router';
 import { vi } from 'vitest';
 
-import { AuthService } from '../../../app/core/services/auth';
+import { AuthService } from './auth';
 
-describe('AuthService', () => {
+describe('AuthService (BFF session)', () => {
   let service: AuthService;
   let http: HttpTestingController;
   let router: Router;
@@ -27,95 +27,63 @@ describe('AuthService', () => {
       ],
     });
 
-    service  = TestBed.inject(AuthService);
-    http     = TestBed.inject(HttpTestingController);
-    router   = TestBed.inject(Router);
+    service = TestBed.inject(AuthService);
+    http = TestBed.inject(HttpTestingController);
+    router = TestBed.inject(Router);
     vi.spyOn(router, 'navigate').mockResolvedValue(true);
   });
 
   afterEach(() => http.verify());
 
-  // ── Estado inicial ──────────────────────────────────────────────────────
-
-  it('inicia sem token e não autenticado', () => {
-    expect(service.getToken()).toBeNull();
+  it('starts unauthenticated without storing OAuth tokens', () => {
     expect(service.isAuthenticated()).toBe(false);
   });
 
-  it('getIsRefreshing() retorna false inicialmente', () => {
-    expect(service.getIsRefreshing()).toBe(false);
-  });
+  it('checks the HttpOnly-backed session with credentials', () => {
+    let authenticated = false;
+    service.checkSession().subscribe((result) => authenticated = result.authenticated);
 
-  // ── handleCallback ──────────────────────────────────────────────────────
+    const req = http.expectOne(`${API}/auth/session`);
+    expect(req.request.method).toBe('GET');
+    expect(req.request.withCredentials).toBe(true);
+    req.flush({ authenticated: true });
 
-  it('handleCallback armazena o token em memória', () => {
-    let done = false;
-
-    service.handleCallback('code-123').subscribe(() => (done = true));
-
-    const req = http.expectOne(`${API}/auth/callback`);
-    expect(req.request.method).toBe('POST');
-    req.flush({ access_token: 'token-abc' });
-
-    expect(done).toBe(true);
-    expect(service.getToken()).toBe('token-abc');
+    expect(authenticated).toBe(true);
     expect(service.isAuthenticated()).toBe(true);
   });
 
-  it('handleCallback limpa o token em caso de erro', () => {
-    service.handleCallback('bad-code').subscribe({ error: () => undefined });
+  it('clears local authentication state when the session is invalid', () => {
+    service.checkSession().subscribe({ error: () => undefined });
 
-    http.expectOne(`${API}/auth/callback`).flush(
-      { message: 'Unauthorized' },
-      { status: 401, statusText: 'Unauthorized' }
+    http.expectOne(`${API}/auth/session`).flush(
+      {},
+      { status: 401, statusText: 'Unauthorized' },
     );
 
-    expect(service.getToken()).toBeNull();
     expect(service.isAuthenticated()).toBe(false);
   });
 
-  // ── refresh ─────────────────────────────────────────────────────────────
-
-  it('refresh define isRefreshing durante a chamada', () => {
+  it('refreshes the server-side session without receiving an access token', () => {
     service.refresh().subscribe();
 
-    expect(service.getIsRefreshing()).toBe(true);
+    const req = http.expectOne(`${API}/auth/refresh`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.withCredentials).toBe(true);
+    req.flush(null);
 
-    http.expectOne(`${API}/auth/refresh`).flush({ access_token: 'new-token' });
-
-    expect(service.getIsRefreshing()).toBe(false);
-    expect(service.getToken()).toBe('new-token');
+    expect(service.isAuthenticated()).toBe(true);
   });
 
-  it('refresh em falha limpa o token e redireciona para /login', () => {
-    service.refresh().subscribe({ error: () => undefined });
+  it('logout clears local state and calls the backend with credentials', () => {
+    service.checkSession().subscribe();
+    http.expectOne(`${API}/auth/session`).flush({ authenticated: true });
 
-    http.expectOne(`${API}/auth/refresh`).flush(
-      {},
-      { status: 401, statusText: 'Unauthorized' }
-    );
-
-    expect(service.getToken()).toBeNull();
-    expect(service.getIsRefreshing()).toBe(false);
-    expect(router.navigate).toHaveBeenCalledWith(['/login']);
-  });
-
-  // ── logout ──────────────────────────────────────────────────────────────
-
-  it('logout limpa o token imediatamente e chama o backend', () => {
-    service.setToken('some-token');
     service.logout();
 
-    expect(service.getToken()).toBeNull();
-
-    http.expectOne(`${API}/auth/logout`).flush({});
-  });
-
-  // ── setToken / getToken ─────────────────────────────────────────────────
-
-  it('setToken e getToken são simétricos', () => {
-    service.setToken('test-token');
-    expect(service.getToken()).toBe('test-token');
-    expect(service.isAuthenticated()).toBe(true);
+    const req = http.expectOne(`${API}/auth/logout`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.withCredentials).toBe(true);
+    expect(service.isAuthenticated()).toBe(false);
+    req.flush(null);
   });
 });
