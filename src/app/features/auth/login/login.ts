@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { AuthService } from '../../../core/services/auth'; 
 
 @Component({
@@ -9,7 +9,7 @@ import { AuthService } from '../../../core/services/auth';
 })
 export class LoginComponent {
 
-  constructor(private auth: AuthService) {}
+    private readonly auth = inject(AuthService);
 
   login(): void {
     this.auth.login();
