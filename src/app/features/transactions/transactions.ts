@@ -63,13 +63,11 @@ export class TransactionsComponent implements OnInit {
 
   form!: FormGroup;
 
-  constructor(
-    private txService: TransactionService,
-    private accountService: AccountService,
-    private categoryService: CategoryService,
-    private fb: FormBuilder,
-    private snack: MatSnackBar
-  ) {}
+    private readonly txService = inject(TransactionService);
+  private readonly accountService = inject(AccountService);
+  private readonly categoryService = inject(CategoryService);
+  private readonly fb = inject(FormBuilder);
+  private readonly snack = inject(MatSnackBar);
 
   // Initialize form after fb is available
   ngOnInit(): void {
