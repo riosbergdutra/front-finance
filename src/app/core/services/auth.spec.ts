@@ -63,7 +63,7 @@ describe('AuthService', () => {
   }));
 
   it('handleCallback limpa o token em caso de erro', fakeAsync(() => {
-    service.handleCallback('bad-code').subscribe({ error: () => {} });
+    service.handleCallback('bad-code').subscribe({ error: () => undefined });
 
     http.expectOne(`${API}/auth/callback`).flush(
       { message: 'Unauthorized' },
@@ -92,7 +92,7 @@ describe('AuthService', () => {
   it('refresh em falha limpa o token e redireciona para /login', fakeAsync(() => {
     vi.spyOn(router, 'navigate');
 
-    service.refresh().subscribe({ error: () => {} });
+    service.refresh().subscribe({ error: () => undefined });
 
     http.expectOne(`${API}/auth/refresh`).flush(
       {},
