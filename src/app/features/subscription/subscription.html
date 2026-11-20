@@ -9,9 +9,12 @@
     Nenhum pagamento ou cobrança real será realizado. Não informe dados reais de cartão.
   </div>
 
-  <div class="loading-center" *ngIf="loading()"><div class="spinner"></div></div>
+  @if (loading()) {
+<div class="loading-center" ><div class="spinner"></div></div>
+}
 
-  <ng-container *ngIf="!loading() && plan()">
+  @if (!loading() && plan()) {
+<ng-container >
     <div class="plan-status-card" [class.pro]="plan()!.isPro">
       <div class="plan-status-left">
         <div class="plan-badge-icon">
@@ -20,12 +23,16 @@
         <div>
           <div class="plan-name">Plano {{ plan()!.plano }}</div>
           <div class="plan-status text-secondary">
-            <ng-container *ngIf="plan()!.isPro">
+            @if (plan()!.isPro) {
+<ng-container >
               {{ diasLabel() }} · Vence em {{ plan()!.fimPeriodo | date:'dd/MM/yyyy' }}
             </ng-container>
-            <ng-container *ngIf="!plan()!.isPro">
+}
+            @if (!plan()!.isPro) {
+<ng-container >
               Gratuito — sem data de expiração
             </ng-container>
+}
           </div>
         </div>
       </div>
@@ -50,21 +57,30 @@
         <div class="limit-icon"><span class="material-icons-round">download</span></div>
         <div class="limit-label">Exportar Excel/PDF</div>
         <div class="limit-value">
-          <span *ngIf="plan()!.isPro" class="badge badge-green">Disponível</span>
-          <span *ngIf="!plan()!.isPro" class="badge badge-red">PRO</span>
+          @if (plan()!.isPro) {
+<span  class="badge badge-green">Disponível</span>
+}
+          @if (!plan()!.isPro) {
+<span  class="badge badge-red">PRO</span>
+}
         </div>
       </div>
       <div class="limit-card" [class.locked]="!plan()!.isPro">
         <div class="limit-icon"><span class="material-icons-round">sync_alt</span></div>
         <div class="limit-label">Open Finance</div>
         <div class="limit-value">
-          <span *ngIf="plan()!.isPro" class="badge badge-green">Disponível</span>
-          <span *ngIf="!plan()!.isPro" class="badge badge-red">PRO</span>
+          @if (plan()!.isPro) {
+<span  class="badge badge-green">Disponível</span>
+}
+          @if (!plan()!.isPro) {
+<span  class="badge badge-red">PRO</span>
+}
         </div>
       </div>
     </div>
 
-    <div class="upgrade-card" *ngIf="!plan()!.isPro">
+    @if (!plan()!.isPro) {
+<div class="upgrade-card" >
       <div class="upgrade-left">
         <div class="upgrade-title">
           <span class="material-icons-round">rocket_launch</span>
@@ -89,17 +105,19 @@
         <p class="upgrade-note">Checkout temporariamente desativado</p>
       </div>
     </div>
+}
 
-    <div class="export-card" *ngIf="plan()!.isPro">
+    @if (plan()!.isPro) {
+<div class="export-card" >
       <div class="section-title" style="margin-bottom:16px">Exportar relatório</div>
       <div class="export-row">
         <div class="filter-field">
-          <label>De</label>
-          <input type="date" [(ngModel)]="exportDe" class="date-input" />
+          <label for="date-from">De</label>
+          <input id="date-from" type="date" [(ngModel)]="exportDe" class="date-input" />
         </div>
         <div class="filter-field">
-          <label>Até</label>
-          <input type="date" [(ngModel)]="exportAte" class="date-input" />
+          <label for="date-to">Até</label>
+          <input id="date-to" type="date" [(ngModel)]="exportAte" class="date-input" />
         </div>
         <button class="btn-export" (click)="exportExcel()">
           <span class="material-icons-round">table_chart</span> Excel
@@ -109,5 +127,7 @@
         </button>
       </div>
     </div>
+}
   </ng-container>
+}
 </div>
