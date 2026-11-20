@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -8,7 +8,7 @@ const API = environment.apiUrl;
 
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
-  constructor(private http: HttpClient) {}
+    private readonly http = inject(HttpClient);
 
   get(): Observable<DashboardResponse> {
     return this.http.get<DashboardResponse>(`${API}/dashboard`);
