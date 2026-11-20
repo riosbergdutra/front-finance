@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, inject } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -32,11 +32,9 @@ export class ShellComponent implements OnInit, OnDestroy {
 
   private wsSub?: Subscription;
 
-  constructor(
-    private auth: AuthService,
-    private ws: WsNotificationService,
-    private notifSvc: NotificationService
-  ) {}
+    private readonly auth = inject(AuthService);
+  private readonly ws = inject(WsNotificationService);
+  private readonly notifSvc = inject(NotificationService);
 
   ngOnInit(): void {
     this.notifSvc.listUnread().subscribe({ next: (l) => this.unread.set(l.length), error: () => {} });
