@@ -1,6 +1,7 @@
 import { HttpInterceptorFn, HttpRequest, HttpHandlerFn } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import { switchMap } from 'rxjs';
+import { filter, map, switchMap } from 'rxjs';
+import { HttpResponse } from '@angular/common/http';
 
 const API_URL = environment.apiUrl;
 const SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS', 'TRACE'];
@@ -31,8 +32,9 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   );
 
   return next(csrfRequest).pipe(
-    switchMap((response) => {
-      const token = (response as { body?: CsrfResponse }).body?.token;
+    filter((event): event is HttpResponse<CsrfResponse> => event instanceof HttpResponse),
+    map((response) => response.body?.token),
+    switchMap((token) => {
       if (!token) {
         throw new Error('Não foi possível obter o token de proteção CSRF.');
       }
