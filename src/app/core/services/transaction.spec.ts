@@ -1,6 +1,4 @@
-import 'zone.js';
-import 'zone.js/testing';
-import { TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import {
   HttpTestingController,
@@ -43,7 +41,7 @@ describe('TransactionService', () => {
 
   // ── list ────────────────────────────────────────────────────────────────
 
-  it('list() envia GET com params de período e paginação', fakeAsync(() => {
+  it('list() envia GET com params de período e paginação', () => {
     service.list('2024-01-01', '2024-01-31', 0, 20).subscribe();
 
     const req = http.expectOne(
@@ -51,22 +49,20 @@ describe('TransactionService', () => {
     );
     expect(req.request.method).toBe('GET');
     req.flush({ content: [], totalElements: 0 });
-    tick();
-  }));
+  });
 
-  it('list() sem datas não envia params de período', fakeAsync(() => {
+  it('list() sem datas não envia params de período', () => {
     service.list(undefined, undefined, 0, 20).subscribe();
 
     const req = http.expectOne((r) => r.url === `${API}/transactions`);
     expect(req.request.params.has('de')).toBe(false);
     expect(req.request.params.has('ate')).toBe(false);
     req.flush({ content: [], totalElements: 0 });
-    tick();
-  }));
+  });
 
   // ── create ──────────────────────────────────────────────────────────────
 
-  it('create() envia POST com o body correto', fakeAsync(() => {
+  it('create() envia POST com o body correto', () => {
     const req: CreateTransactionRequest = {
       accountId: 'acc-1',
       tipo: 'DESPESA',
@@ -80,12 +76,11 @@ describe('TransactionService', () => {
     expect(httpReq.request.method).toBe('POST');
     expect(httpReq.request.body).toEqual(req);
     httpReq.flush(mockTransaction);
-    tick();
-  }));
+  });
 
   // ── update ──────────────────────────────────────────────────────────────
 
-  it('update() envia PUT para o ID correto', fakeAsync(() => {
+  it('update() envia PUT para o ID correto', () => {
     service.update('tx-1', {
       tipo: 'DESPESA',
       status: 'CONFIRMADA',
@@ -96,23 +91,21 @@ describe('TransactionService', () => {
     const req = http.expectOne(`${API}/transactions/tx-1`);
     expect(req.request.method).toBe('PUT');
     req.flush(mockTransaction);
-    tick();
-  }));
+  });
 
   // ── delete ──────────────────────────────────────────────────────────────
 
-  it('delete() envia DELETE para o ID correto', fakeAsync(() => {
+  it('delete() envia DELETE para o ID correto', () => {
     service.delete('tx-1').subscribe();
 
     const req = http.expectOne(`${API}/transactions/tx-1`);
     expect(req.request.method).toBe('DELETE');
     req.flush(null);
-    tick();
-  }));
+  });
 
   // ── get ─────────────────────────────────────────────────────────────────
 
-  it('get() envia GET para o ID correto e retorna a transação', fakeAsync(() => {
+  it('get() envia GET para o ID correto e retorna a transação', () => {
     let result: TransactionResponse | undefined;
 
     service.get('tx-1').subscribe((t) => (result = t));
@@ -120,8 +113,7 @@ describe('TransactionService', () => {
     const req = http.expectOne(`${API}/transactions/tx-1`);
     expect(req.request.method).toBe('GET');
     req.flush(mockTransaction);
-    tick();
 
     expect(result).toEqual(mockTransaction);
-  }));
+  });
 });
