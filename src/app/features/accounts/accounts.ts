@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, NgZone } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -37,6 +37,7 @@ export class AccountsComponent implements OnInit {
   private readonly subscriptionService = inject(SubscriptionService);
   private readonly fb                  = inject(FormBuilder);
   private readonly snack               = inject(MatSnackBar);
+  private readonly zone                = inject(NgZone);
 
   accounts     = signal<AccountResponse[]>([]);
   subscription = signal<SubscriptionResponse | null>(null);
@@ -60,7 +61,7 @@ export class AccountsComponent implements OnInit {
   ngOnInit(): void {
     this.load();
     this.subscriptionService.getMyPlan().subscribe({
-      next: (s) => this.subscription.set(s),
+      next: (s) => this.zone.run(() => this.subscription.set(s)),
       error: () => {},
     });
   }
@@ -68,8 +69,8 @@ export class AccountsComponent implements OnInit {
   load(): void {
     this.loading.set(true);
     this.accountService.list().subscribe({
-      next: (list) => { this.accounts.set(list); this.loading.set(false); },
-      error: ()     => { this.loading.set(false); },
+      next: (list) => this.zone.run(() => { this.accounts.set(list); this.loading.set(false); }),
+      error: ()    => this.zone.run(() => this.loading.set(false)),
     });
   }
 

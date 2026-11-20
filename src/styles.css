@@ -43,7 +43,7 @@
 /* ── Reset ────────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html {
+html { overflow-x: hidden;
   font-size: 14px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -54,7 +54,7 @@ body {
   background: var(--bg-root);
   color: var(--text-primary);
   min-height: 100vh;
-  overflow-x: hidden;
+  /* overflow-x: hidden removido do body — causava problemas com position:sticky */
   line-height: 1.5;
 }
 
@@ -206,7 +206,8 @@ body {
 
 /* ── Page layout ─────────────────────────────────────────────────────── */
 .page-enter {
-  animation: fadeIn 0.2s ease;
+  animation: fadeIn 0.15s ease-out forwards;
+  will-change: opacity;
   padding-bottom: 32px;
 }
 
@@ -242,7 +243,6 @@ body {
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.2s, transform 0.15s;
 }
 
 .btn-primary:hover  { background: #00dea8; }
@@ -293,7 +293,7 @@ body {
   background: rgba(9,13,26,0.85);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
-  z-index: 300;
+  z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -363,6 +363,7 @@ body {
   font-size: 13px;
   cursor: pointer;
   transition: border-color 0.2s;
+  appearance: none;
   -webkit-appearance: none;
 }
 
@@ -430,6 +431,12 @@ body {
 }
 
 /* ── Animations ──────────────────────────────────────────────────────── */
-@keyframes fadeIn  { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-@keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+@keyframes fadeIn { 
+  from { 
+    opacity: 0; 
+  } 
+  to { 
+    opacity: 1; 
+  } 
+}@keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
 @keyframes spin    { to { transform: rotate(360deg); } }

@@ -91,19 +91,6 @@
 
 .add-card .material-icons-round { font-size: 26px; }
 
-/* ── Dialog — DEVE ser fixed para ficar sobre tudo ───────────────────── */
-.dialog-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(9,13,26,0.85);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  z-index: 500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-}
 
 .dialog-card {
   background: var(--bg-card);

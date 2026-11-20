@@ -77,10 +77,11 @@
         </ul>
       </div>
       <div class="upgrade-right">
-        <div class="upgrade-price">R$ 19,90<span>/mês</span></div>
-        <button class="btn-upgrade" (click)="upgrade()">
-          <span class="material-icons-round">workspace_premium</span>
-          Assinar PRO
+        <div class="upgrade-price">R$ 30<span>/mês</span></div>
+        <button class="btn-upgrade" (click)="upgrade()" [disabled]="upgrading()">
+          <span class="spinner-sm" *ngIf="upgrading()"></span>
+          <span class="material-icons-round" *ngIf="!upgrading()">workspace_premium</span>
+          {{ upgrading() ? 'Aguarde...' : 'Assinar PRO' }}
         </button>
         <p class="upgrade-note">Cancele quando quiser</p>
       </div>

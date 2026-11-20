@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, NgZone } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
@@ -18,15 +18,19 @@ export class Notifications implements OnInit {
   totalElements = signal(0);
   currentPage = 0;
 
-  constructor(private notifSvc: NotificationService, private snack: MatSnackBar) {}
+  constructor(private notifSvc: NotificationService, private snack: MatSnackBar, private zone: NgZone) {}
 
   ngOnInit(): void { this.load(); }
 
   load(): void {
     this.loading.set(true);
     this.notifSvc.list(this.currentPage).subscribe({
-      next: (p) => { this.notifications.set(p.content); this.totalElements.set(p.totalElements); this.loading.set(false); },
-      error: () => this.loading.set(false),
+      next: (p) => this.zone.run(() => {
+        this.notifications.set(p.content);
+        this.totalElements.set(p.totalElements);
+        this.loading.set(false);
+      }),
+      error: () => this.zone.run(() => this.loading.set(false)),
     });
   }
 

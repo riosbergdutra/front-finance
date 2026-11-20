@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, NgZone } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -34,7 +34,7 @@ export class Budgets implements OnInit {
   currentYear = new Date().getFullYear();
 
   constructor(private budgetService: BudgetService, private categoryService: CategoryService,
-    private fb: FormBuilder, private snack: MatSnackBar) {}
+    private fb: FormBuilder, private snack: MatSnackBar, private zone: NgZone) {}
 
   ngOnInit(): void {
     this.form = this.fb.group({
@@ -43,7 +43,7 @@ export class Budgets implements OnInit {
       alertaEm: [80],
     });
     this.load();
-    this.categoryService.list().subscribe((c) => this.categories.set(c));
+    this.categoryService.list().subscribe((c) => this.zone.run(() => this.categories.set(c)));
   }
 
   monthName(): string { return MONTHS[this.currentMonth - 1]; }
@@ -63,8 +63,8 @@ export class Budgets implements OnInit {
   load(): void {
     this.loading.set(true);
     this.budgetService.list(this.currentMonth, this.currentYear).subscribe({
-      next: (list) => { this.budgets.set(list); this.loading.set(false); },
-      error: () => this.loading.set(false),
+      next: (list) => this.zone.run(() => { this.budgets.set(list); this.loading.set(false); }),
+      error: ()    => this.zone.run(() => this.loading.set(false)),
     });
   }
 

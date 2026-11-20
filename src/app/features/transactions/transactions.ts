@@ -1,5 +1,5 @@
 import { CommonModule, CurrencyPipe, DatePipe } from "@angular/common";
-import { Component, OnInit, signal } from "@angular/core";
+import { Component, OnInit, signal, NgZone } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
@@ -68,7 +68,8 @@ export class TransactionsComponent implements OnInit {
     private accountService: AccountService,
     private categoryService: CategoryService,
     private fb: FormBuilder,
-    private snack: MatSnackBar
+    private snack: MatSnackBar,
+    private zone: NgZone
   ) {}
 
   // Initialize form after fb is available
@@ -90,40 +91,24 @@ export class TransactionsComponent implements OnInit {
 
     this.load();
 
-    this.accountService
-      .list()
-      .subscribe((a) => this.accounts.set(a));
+    this.accountService.list()
+      .subscribe((a) => this.zone.run(() => this.accounts.set(a)));
 
-    this.categoryService
-      .list()
-      .subscribe((c) => this.categories.set(c));
+    this.categoryService.list()
+      .subscribe((c) => this.zone.run(() => this.categories.set(c)));
   }
 
   load(): void {
-
     this.loading.set(true);
 
-    this.txService
-      .list(
-        this.filterDe,
-        this.filterAte,
-        this.currentPage
-      )
+    this.txService.list(this.filterDe, this.filterAte, this.currentPage)
       .subscribe({
-        next: (page) => {
-
+        next: (page) => this.zone.run(() => {
           this.transactions.set(page.content);
-
-          this.totalElements.set(
-            page.totalElements
-          );
-
+          this.totalElements.set(page.totalElements);
           this.loading.set(false);
-        },
-
-        error: () => {
-          this.loading.set(false);
-        }
+        }),
+        error: () => this.zone.run(() => this.loading.set(false)),
       });
   }
 

@@ -139,7 +139,17 @@
   transition: all 0.2s;
 }
 
-.btn-upgrade:hover { background: #00dea8; box-shadow: var(--shadow-glow-green); }
+.btn-upgrade:hover    { background: #00dea8; box-shadow: var(--shadow-glow-green); }
+.btn-upgrade:disabled { opacity: 0.65; cursor: not-allowed; }
+
+.spinner-sm {
+  width: 16px; height: 16px;
+  border: 2px solid rgba(5,13,26,0.3);
+  border-top-color: #050d1a;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
 
 .upgrade-note { font-size: 11px; color: var(--text-muted); }
 

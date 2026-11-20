@@ -1,5 +1,12 @@
-/* ── Shell layout ────────────────────────────────────────────────────── */
-.shell { display: flex; min-height: 100vh; }
+/* FIX: o shell agora usa :host para referenciar o elemento raiz do componente
+   (<app-shell>) em vez de uma div.shell interna. Isso resolve o FOUC porque
+   as classes (collapsed, sidebar-open, tablet-expanded) são aplicadas via
+   host binding ANTES do primeiro render — sem necessidade de change detection. */
+
+:host {
+  display: flex;
+  min-height: 100vh;
+}
 
 /* ── Sidebar ─────────────────────────────────────────────────────────── */
 .sidebar {
@@ -12,11 +19,12 @@
   position: fixed;
   top: 0; left: 0; bottom: 0;
   z-index: 200;
-  transition: width 0.25s ease, transform 0.25s ease;
+  transition: width 0.25s ease;
   overflow: hidden;
+  will-change: width;
 }
 
-.collapsed .sidebar { width: 60px; }
+:host(.collapsed) .sidebar { width: 60px; }
 
 .sidebar-header {
   display: flex;
@@ -36,10 +44,10 @@
   min-width: 0;
 }
 
-.logo-icon  { font-size: 22px; color: var(--green); flex-shrink: 0; }
-.logo-text  { font-size: 15px; font-weight: 700; white-space: nowrap; transition: opacity 0.2s; }
+.logo-icon { font-size: 22px; color: var(--green); flex-shrink: 0; }
+.logo-text { font-size: 15px; font-weight: 700; white-space: nowrap; transition: opacity 0.2s; }
 
-.collapsed .logo-text { opacity: 0; pointer-events: none; }
+:host(.collapsed) .logo-text { opacity: 0; pointer-events: none; }
 
 .nav {
   flex: 1;
@@ -79,13 +87,16 @@
 .nav-item .material-icons-round { font-size: 20px; flex-shrink: 0; }
 
 .nav-label { transition: opacity 0.2s; }
-.collapsed .nav-label { opacity: 0; }
+:host(.collapsed) .nav-label { opacity: 0; }
 
 .sidebar-footer {
   padding: 8px;
   border-top: 1px solid var(--border);
   flex-shrink: 0;
 }
+
+/* ── Botão desktop de colapso ────────────────────────────────────────── */
+.desktop-toggle { display: inline-flex; }
 
 /* ── Main ────────────────────────────────────────────────────────────── */
 .main {
@@ -95,9 +106,10 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  min-width: 0;
 }
 
-.collapsed .main { margin-left: 60px; }
+:host(.collapsed) .main { margin-left: 60px; }
 
 /* ── Topbar ──────────────────────────────────────────────────────────── */
 .topbar {
@@ -143,49 +155,66 @@
 .avatar:hover { background: rgba(59,130,246,0.2); }
 .avatar .material-icons-round { font-size: 18px; }
 
-.mobile-toggle { display: none; }
-
 /* ── Content ─────────────────────────────────────────────────────────── */
 .content {
   flex: 1;
   padding: 20px 16px;
-  overflow-y: auto;
+  overflow-x: hidden;
 }
+
+/* FIX: botão de menu mobile some no desktop por padrão */
+.mobile-toggle { display: none; }
 
 /* ── Mobile (≤768px) ─────────────────────────────────────────────────── */
 @media (max-width: 768px) {
+  /* Sidebar fora da tela por padrão no mobile */
   .sidebar {
     transform: translateX(-100%);
-    width: 220px;
+    width: 220px !important;
     box-shadow: 4px 0 24px rgba(0,0,0,0.5);
+    transition: transform 0.25s ease;
   }
 
-  /* No mobile, "collapsed" significa sidebar ABERTA (toggle invertido) */
-  .collapsed .sidebar {
-    transform: translateX(0);
-    width: 220px;
-  }
+  /* Sidebar aberta: classe .sidebar-open no host */
+  :host(.sidebar-open) .sidebar { transform: translateX(0); }
 
-  .collapsed .logo-text { opacity: 1; }
-  .collapsed .nav-label  { opacity: 1; }
+  /* Main sempre ocupa 100% no mobile */
+  .main { margin-left: 0 !important; transition: none; }
 
-  .main        { margin-left: 0 !important; }
-  .mobile-toggle { display: inline-flex; }
+  /* Logo e labels sempre visíveis quando sidebar está aberta */
+  :host(.sidebar-open) .logo-text { opacity: 1; }
+  :host(.sidebar-open) .nav-label { opacity: 1; }
+
+  /* Mostra botão de menu hambúrguer, esconde botão de colapso desktop */
+  .mobile-toggle  { display: inline-flex; }
+  .desktop-toggle { display: none; }
 
   /* Overlay escuro quando sidebar mobile está aberta */
-  .collapsed::before {
+  :host(.sidebar-open)::before {
     content: '';
     position: fixed;
     inset: 0;
     background: rgba(9,13,26,0.6);
     z-index: 199;
+    pointer-events: auto;
   }
 }
 
 /* ── Tablet (769px–1024px) ───────────────────────────────────────────── */
 @media (min-width: 769px) and (max-width: 1024px) {
-  .sidebar:not(.collapsed) { width: 60px; }
-  .logo-text  { opacity: 0; pointer-events: none; }
-  .nav-label  { opacity: 0; }
-  .main       { margin-left: 60px; }
+  /* Tablet: sidebar mini por padrão, independente do estado desktop */
+  .sidebar { width: 60px; transition: width 0.25s ease; }
+  .logo-text { opacity: 0; pointer-events: none; }
+  .nav-label { opacity: 0; }
+  .main { margin-left: 60px; transition: margin-left 0.25s ease; }
+
+  /* Tablet expandido manualmente pelo usuário */
+  :host(.tablet-expanded) .sidebar   { width: 220px; }
+  :host(.tablet-expanded) .logo-text { opacity: 1; pointer-events: auto; }
+  :host(.tablet-expanded) .nav-label { opacity: 1; }
+  :host(.tablet-expanded) .main      { margin-left: 220px; }
+
+  /* No tablet o botão de menu fica sempre visível (para expandir/recolher) */
+  .mobile-toggle  { display: inline-flex; }
+  .desktop-toggle { display: none; }
 }

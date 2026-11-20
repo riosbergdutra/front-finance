@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, NgZone } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -30,7 +30,7 @@ export class Goals implements OnInit {
   form!: FormGroup;
   depositForm!: FormGroup;
 
-  constructor(private goalService: GoalService, private fb: FormBuilder, private snack: MatSnackBar) {}
+  constructor(private goalService: GoalService, private fb: FormBuilder, private snack: MatSnackBar, private zone: NgZone) {}
 
   ngOnInit(): void {
     this.form = this.fb.group({
@@ -46,8 +46,8 @@ export class Goals implements OnInit {
   load(): void {
     this.loading.set(true);
     this.goalService.list().subscribe({
-      next: (list) => { this.goals.set(list); this.loading.set(false); },
-      error: () => this.loading.set(false),
+      next: (list) => this.zone.run(() => { this.goals.set(list); this.loading.set(false); }),
+      error: ()    => this.zone.run(() => this.loading.set(false)),
     });
   }
 
