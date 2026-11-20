@@ -44,12 +44,12 @@ describe('SubscriptionComponent', () => {
   });
 
   it('limiteContasLabel retorna "Ilimitado" para PRO', () => {
-    component['plan'].set({ plano: 'PRO', status: 'ACTIVE', isPro: true, diasParaExpirar: 30, limiteContas: 2147483647, limiteTransacoesMes: 2147483647 } as any);
+    component['plan'].set({ plano: 'PRO', status: 'ACTIVE', isPro: true, diasParaExpirar: 30, limiteContas: 2147483647, limiteTransacoesMes: 2147483647 } as SubscriptionResponse);
     expect(component.limiteContasLabel()).toBe('Ilimitado');
   });
 
   it('diasLabel retorna string de dias para PRO ativo', () => {
-    component['plan'].set({ plano: 'PRO', status: 'ACTIVE', isPro: true, diasParaExpirar: 15, limiteContas: 2147483647, limiteTransacoesMes: 2147483647 } as any);
+    component['plan'].set({ plano: 'PRO', status: 'ACTIVE', isPro: true, diasParaExpirar: 15, limiteContas: 2147483647, limiteTransacoesMes: 2147483647 } as SubscriptionResponse);
     expect(component.diasLabel()).toBe('15 dias restantes');
   });
 });
