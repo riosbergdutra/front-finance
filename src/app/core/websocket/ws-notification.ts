@@ -1,4 +1,4 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { Injectable, OnDestroy, inject } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
 import { AuthService } from '../services/auth'; 
 import { environment } from '../../environments/environment';
@@ -21,7 +21,7 @@ export class WsNotificationService implements OnDestroy {
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private destroyed = false;
 
-  constructor(private auth: AuthService) {}
+    private readonly auth = inject(AuthService);
 
   connect(): Observable<NotificationResponse> {
     this.openConnection();
