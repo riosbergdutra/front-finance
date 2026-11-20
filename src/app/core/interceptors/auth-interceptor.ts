@@ -20,7 +20,7 @@ import {
 } from 'rxjs';
 import { environment } from '../../environments/environment';
 
-const API_URL = environment.apiUrl.replace(/\\/+$/, '');
+const API_URL = environment.apiUrl.replace(/\/+$/, '');
 const SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS', 'TRACE'];
 
 interface CsrfResponse {
@@ -67,11 +67,10 @@ const refreshSession = (
       'POST',
       `${API_URL}/auth/refresh`,
       {},
-      {
-        withCredentials: true,
-        setHeaders: { 'X-XSRF-TOKEN': token },
-      },
-    ))),
+      { withCredentials: true },
+    ).clone({
+      setHeaders: { 'X-XSRF-TOKEN': token },
+    }))),
     filter((event) => event instanceof HttpResponse),
     take(1),
     map(() => undefined),
