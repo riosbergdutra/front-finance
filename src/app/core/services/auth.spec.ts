@@ -1,14 +1,12 @@
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
-import {
-  provideHttpClient,
-  withInterceptors,
-} from '@angular/common/http';
+import { provideHttpClient } from '@angular/common/http';
 import {
   HttpTestingController,
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { Router } from '@angular/router';
 import { provideRouter } from '@angular/router';
+import { vi } from 'vitest';
 
 import { AuthService } from '../../../app/core/services/auth';
 
@@ -40,11 +38,11 @@ describe('AuthService', () => {
 
   it('inicia sem token e não autenticado', () => {
     expect(service.getToken()).toBeNull();
-    expect(service.isAuthenticated()).toBeFalse();
+    expect(service.isAuthenticated()).toBe(false);
   });
 
   it('getIsRefreshing() retorna false inicialmente', () => {
-    expect(service.getIsRefreshing()).toBeFalse();
+    expect(service.getIsRefreshing()).toBe(false);
   });
 
   // ── handleCallback ──────────────────────────────────────────────────────
@@ -59,9 +57,9 @@ describe('AuthService', () => {
     req.flush({ access_token: 'token-abc' });
     tick();
 
-    expect(done).toBeTrue();
+    expect(done).toBe(true);
     expect(service.getToken()).toBe('token-abc');
-    expect(service.isAuthenticated()).toBeTrue();
+    expect(service.isAuthenticated()).toBe(true);
   }));
 
   it('handleCallback limpa o token em caso de erro', fakeAsync(() => {
@@ -74,7 +72,7 @@ describe('AuthService', () => {
     tick();
 
     expect(service.getToken()).toBeNull();
-    expect(service.isAuthenticated()).toBeFalse();
+    expect(service.isAuthenticated()).toBe(false);
   }));
 
   // ── refresh ─────────────────────────────────────────────────────────────
@@ -82,17 +80,17 @@ describe('AuthService', () => {
   it('refresh define isRefreshing durante a chamada', fakeAsync(() => {
     service.refresh().subscribe();
 
-    expect(service.getIsRefreshing()).toBeTrue();
+    expect(service.getIsRefreshing()).toBe(true);
 
     http.expectOne(`${API}/auth/refresh`).flush({ access_token: 'new-token' });
     tick();
 
-    expect(service.getIsRefreshing()).toBeFalse();
+    expect(service.getIsRefreshing()).toBe(false);
     expect(service.getToken()).toBe('new-token');
   }));
 
   it('refresh em falha limpa o token e redireciona para /login', fakeAsync(() => {
-    spyOn(router, 'navigate');
+    vi.spyOn(router, 'navigate');
 
     service.refresh().subscribe({ error: () => {} });
 
@@ -103,7 +101,7 @@ describe('AuthService', () => {
     tick();
 
     expect(service.getToken()).toBeNull();
-    expect(service.getIsRefreshing()).toBeFalse();
+    expect(service.getIsRefreshing()).toBe(false);
     expect(router.navigate).toHaveBeenCalledWith(['/login']);
   }));
 
@@ -124,6 +122,6 @@ describe('AuthService', () => {
   it('setToken e getToken são simétricos', () => {
     service.setToken('test-token');
     expect(service.getToken()).toBe('test-token');
-    expect(service.isAuthenticated()).toBeTrue();
+    expect(service.isAuthenticated()).toBe(true);
   });
 });
