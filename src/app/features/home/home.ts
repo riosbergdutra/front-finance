@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../core/services/auth';
@@ -11,7 +11,7 @@ import { AuthService } from '../../core/services/auth';
   styleUrl: './home.css',
 })
 export class HomeComponent {
-  constructor(private auth: AuthService) {}
+    private readonly auth = inject(AuthService);
 
   get isAuth() { return this.auth.isAuthenticated(); }
 
