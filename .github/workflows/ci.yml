@@ -31,6 +31,22 @@ jobs:
       - name: ESLint
         run: npm run lint
 
+  unit-tests:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Run unit tests
+        run: npm test -- --watch=false
+
   build:
     name: Production build
     runs-on: ubuntu-latest
