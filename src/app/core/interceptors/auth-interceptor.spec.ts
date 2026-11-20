@@ -79,7 +79,7 @@ describe('authInterceptor', () => {
   }));
 
   it('não adiciona Authorization quando não há token', fakeAsync(() => {
-    http.get(`${API}/accounts`).subscribe({ error: () => {} });
+    http.get(`${API}/accounts`).subscribe({ error: () => undefined });
 
     const req = httpMock.expectOne(`${API}/accounts`);
     expect(req.request.headers.has('Authorization')).toBe(false);
