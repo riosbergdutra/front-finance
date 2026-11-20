@@ -41,22 +41,6 @@ export class AuthService {
     window.location.href = `${this.api}/auth/login`;
   }
 
-  handleCallback(code: string): Observable<AuthResponse> {
-    const body = new URLSearchParams({ code });
-    return this.http
-      .post<AuthResponse>(`${this.api}/auth/callback`, body.toString(), {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        withCredentials: true,
-      })
-      .pipe(
-        tap((res) => this._accessToken.set(res.access_token)),
-        catchError((err) => {
-          this._accessToken.set(null);
-          return throwError(() => err);
-        })
-      );
-  }
-
   refresh(): Observable<AuthResponse> {
     this.refreshing$.next(true);
     return this.http
