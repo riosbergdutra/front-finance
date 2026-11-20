@@ -1,75 +1,44 @@
-import {
-  HttpInterceptorFn,
-  HttpRequest,
-  HttpHandlerFn,
-  HttpErrorResponse,
-} from '@angular/common/http';
-import { inject } from '@angular/core';
-import { catchError, switchMap, throwError, filter, take } from 'rxjs';
-import { AuthService } from '../services/auth';
+import { HttpInterceptorFn, HttpRequest, HttpHandlerFn } from '@angular/common/http';
+import { environment } from '../../environments/environment';
+import { switchMap } from 'rxjs';
+
+const API_URL = environment.apiUrl;
+const SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS', 'TRACE'];
+
+interface CsrfResponse {
+  token: string;
+}
 
 /**
- * CORREÇÕES:
- *
- * 1. BUG CRÍTICO: `if (auth.isRefreshing$)` era sempre true porque isRefreshing$
- *    é um Observable (objeto truthy), não um boolean.
- *    Corrigido: usando auth.getIsRefreshing() que expõe o valor atual do BehaviorSubject.
- *
- * 2. Quando já está em refresh, a lógica de espera agora funciona corretamente:
- *    aguarda o BehaviorSubject emitir false (refresh completo) e então reexecuta
- *    a request original com o novo token.
- *
- * PATCH NECESSÁRIO EM auth.ts:
- *   Adicione este método público ao AuthService:
- *
- *   getIsRefreshing(): boolean {
- *     return this.refreshing$.getValue();
- *   }
+ * Sends the HttpOnly session cookie with API requests and adds the CSRF token
+ * to unsafe requests. OAuth tokens are never read or attached by the browser.
  */
-export const authInterceptor: HttpInterceptorFn = (
-  req: HttpRequest<unknown>,
-  next: HttpHandlerFn
-) => {
-  const auth = inject(AuthService);
-
-  const publicRoutes = ['/auth/login', '/auth/callback', '/auth/refresh'];
-  if (publicRoutes.some((r) => req.url.includes(r))) {
+export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  if (!req.url.startsWith(API_URL)) {
     return next(req);
   }
 
-  const token = auth.getToken();
-  const authReq = token ? addToken(req, token) : req;
+  const credentialed = req.clone({ withCredentials: true });
+  if (SAFE_METHODS.includes(req.method.toUpperCase())) {
+    return next(credentialed);
+  }
 
-  return next(authReq).pipe(
-    catchError((error: HttpErrorResponse) => {
-      if (error.status !== 401) return throwError(() => error);
+  // Fetch a fresh CSRF token through the remainder of the interceptor chain.
+  const csrfRequest = new HttpRequest<CsrfResponse>(
+    'GET',
+    `${API_URL}/auth/csrf`,
+    { withCredentials: true },
+  );
 
-      // FIX: verifica o valor atual do BehaviorSubject, não o Observable em si
-      if (auth.getIsRefreshing()) {
-        return auth.isRefreshing$.pipe(
-          filter((refreshing) => !refreshing),
-          take(1),
-          switchMap(() => {
-            const newToken = auth.getToken();
-            return next(newToken ? addToken(req, newToken) : req);
-          })
-        );
+  return next(csrfRequest).pipe(
+    switchMap((response) => {
+      const token = (response as { body?: CsrfResponse }).body?.token;
+      if (!token) {
+        throw new Error('Não foi possível obter o token de proteção CSRF.');
       }
-
-      return auth.refresh().pipe(
-        switchMap((res) => next(addToken(req, res.access_token))),
-        catchError((refreshError) => throwError(() => refreshError))
-      );
-    })
+      return next(credentialed.clone({
+        setHeaders: { 'X-XSRF-TOKEN': token },
+      }));
+    }),
   );
 };
-
-function addToken(
-  req: HttpRequest<unknown>,
-  token: string
-): HttpRequest<unknown> {
-  return req.clone({
-    setHeaders: { Authorization: `Bearer ${token}` },
-    withCredentials: true,
-  });
-}
