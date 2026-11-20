@@ -42,7 +42,7 @@ describe('authInterceptor', () => {
     http.post(`${API}/auth/callback`, {}).subscribe();
 
     const req = httpMock.expectOne(`${API}/auth/callback`);
-    expect(req.request.headers.has('Authorization')).toBeFalse();
+    expect(req.request.headers.has('Authorization')).toBe(false);
     req.flush({ access_token: 'x' });
     tick();
   }));
@@ -51,7 +51,7 @@ describe('authInterceptor', () => {
     http.post(`${API}/auth/refresh`, {}).subscribe();
 
     const req = httpMock.expectOne(`${API}/auth/refresh`);
-    expect(req.request.headers.has('Authorization')).toBeFalse();
+    expect(req.request.headers.has('Authorization')).toBe(false);
     req.flush({ access_token: 'x' });
     tick();
   }));
@@ -73,7 +73,7 @@ describe('authInterceptor', () => {
     http.get(`${API}/accounts`).subscribe();
 
     const req = httpMock.expectOne(`${API}/accounts`);
-    expect(req.request.withCredentials).toBeTrue();
+    expect(req.request.withCredentials).toBe(true);
     req.flush([]);
     tick();
   }));
@@ -82,7 +82,7 @@ describe('authInterceptor', () => {
     http.get(`${API}/accounts`).subscribe({ error: () => {} });
 
     const req = httpMock.expectOne(`${API}/accounts`);
-    expect(req.request.headers.has('Authorization')).toBeFalse();
+    expect(req.request.headers.has('Authorization')).toBe(false);
     req.flush({}, { status: 401, statusText: 'Unauthorized' });
     tick();
 
@@ -136,6 +136,6 @@ describe('authInterceptor', () => {
     );
     tick();
 
-    expect(errorCaptured).toBeTrue();
+    expect(errorCaptured).toBe(true);
   }));
 });
