@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
@@ -18,7 +18,8 @@ export class Notifications implements OnInit {
   totalElements = signal(0);
   currentPage = 0;
 
-  constructor(private notifSvc: NotificationService, private snack: MatSnackBar) {}
+    private readonly notifSvc = inject(NotificationService);
+  private readonly snack = inject(MatSnackBar);
 
   ngOnInit(): void { this.load(); }
 
