@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -33,8 +33,10 @@ export class Budgets implements OnInit {
   currentMonth = new Date().getMonth() + 1;
   currentYear = new Date().getFullYear();
 
-  constructor(private budgetService: BudgetService, private categoryService: CategoryService,
-    private fb: FormBuilder, private snack: MatSnackBar) {}
+    private readonly budgetService = inject(BudgetService);
+  private readonly categoryService = inject(CategoryService);
+  private readonly fb = inject(FormBuilder);
+  private readonly snack = inject(MatSnackBar);
 
   ngOnInit(): void {
     this.form = this.fb.group({
