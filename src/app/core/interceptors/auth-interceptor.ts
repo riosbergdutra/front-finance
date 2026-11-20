@@ -1,7 +1,10 @@
-import { HttpInterceptorFn, HttpRequest, HttpHandlerFn } from '@angular/common/http';
+import {
+  HttpInterceptorFn,
+  HttpRequest,
+  HttpResponse,
+} from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { filter, map, switchMap } from 'rxjs';
-import { HttpResponse } from '@angular/common/http';
 
 const API_URL = environment.apiUrl;
 const SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS', 'TRACE'];
@@ -24,8 +27,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     return next(credentialed);
   }
 
-  // Fetch a fresh CSRF token through the remainder of the interceptor chain.
-  const csrfRequest = new HttpRequest<CsrfResponse>(
+  const csrfRequest = new HttpRequest<null>(
     'GET',
     `${API_URL}/auth/csrf`,
     { withCredentials: true },
