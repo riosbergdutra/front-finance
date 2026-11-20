@@ -9,26 +9,36 @@
     </button>
   </div>
 
-  <div class="loading-center" *ngIf="loading()">
+  @if (loading()) {
+<div class="loading-center" >
     <div class="spinner"></div>
   </div>
+}
 
-  <div class="goals-grid" *ngIf="!loading()">
-    <div class="goal-card" *ngFor="let g of goals()" [class.concluida]="g.concluida">
+  @if (!loading()) {
+<div class="goals-grid" >
+    @for (g of goals(); track g) {
+<div class="goal-card"  [class.concluida]="g.concluida">
       <div class="goal-header">
         <div class="goal-icon" [style.background]="(g.cor || '#00c896') + '20'">
           <span class="material-icons-round" [style.color]="g.cor || 'var(--green)'">savings</span>
         </div>
         <div class="goal-actions">
-          <button class="icon-btn" (click)="openDeposit(g.id)" matTooltip="Depositar" *ngIf="!g.concluida">
+          @if (!g.concluida) {
+<button class="icon-btn" (click)="openDeposit(g.id)" matTooltip="Depositar" >
             <span class="material-icons-round">add_circle_outline</span>
           </button>
-          <button class="icon-btn" (click)="openWithdraw(g.id)" matTooltip="Sacar" *ngIf="!g.concluida">
+}
+          @if (!g.concluida) {
+<button class="icon-btn" (click)="openWithdraw(g.id)" matTooltip="Sacar" >
             <span class="material-icons-round">remove_circle_outline</span>
           </button>
-          <button class="icon-btn" (click)="concluir(g.id)" matTooltip="Concluir" *ngIf="!g.concluida">
+}
+          @if (!g.concluida) {
+<button class="icon-btn" (click)="concluir(g.id)" matTooltip="Concluir" >
             <span class="material-icons-round">check_circle_outline</span>
           </button>
+}
           <button class="icon-btn danger" (click)="delete(g.id)">
             <span class="material-icons-round">delete_outline</span>
           </button>
@@ -36,9 +46,11 @@
       </div>
 
       <div class="goal-name">{{ g.nome }}</div>
-      <div class="goal-concluida-badge" *ngIf="g.concluida">
+      @if (g.concluida) {
+<div class="goal-concluida-badge" >
         <span class="material-icons-round">check_circle</span> Concluída
       </div>
+}
 
       <div class="goal-values">
         <span class="mono text-green">{{ g.valorAtual | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
@@ -54,21 +66,26 @@
         <span class="pct-label">{{ g.percentualConcluido.toFixed(0) }}%</span>
       </div>
 
-      <div class="goal-meta text-secondary" *ngIf="g.dataAlvo">
+      @if (g.dataAlvo) {
+<div class="goal-meta text-secondary" >
         <span class="material-icons-round" style="font-size:14px">event</span>
         Prazo: {{ g.dataAlvo | date:'dd/MM/yyyy' }}
       </div>
+}
     </div>
+}
 
-    <div class="goal-card add-card" (click)="openForm()">
+    <div class="goal-card add-card" role="button" tabindex="0" (click)="openForm()" (keydown.enter)="openForm()">
       <span class="material-icons-round">add_circle_outline</span>
       <span>Nova meta</span>
     </div>
   </div>
+}
 
   <!-- Formulário nova meta -->
-  <div class="dialog-overlay" *ngIf="showForm()" (click)="closeForm()">
-    <div class="dialog-card" (click)="$event.stopPropagation()">
+  @if (showForm()) {
+<div class="dialog-overlay"  tabindex="-1" role="presentation" (click)="closeForm()" (keydown.escape)="closeForm()">
+    <div class="dialog-card" tabindex="0" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
       <div class="dialog-header">
         <h3>Nova meta</h3>
         <button class="icon-btn" (click)="closeForm()"><span class="material-icons-round">close</span></button>
@@ -97,9 +114,11 @@
       </form>
     </div>
   </div>
+}
 
   <!-- Formulário depósito / saque -->
-  <div class="dialog-overlay" *ngIf="showDepositForm()" (click)="closeDeposit()">
+  @if (showDepositForm()) {
+<div class="dialog-overlay"  tabindex="-1" role="presentation" (click)="closeDeposit()" (keydown.escape)="closeDeposit()">
     <div class="dialog-card" (click)="$event.stopPropagation()">
       <div class="dialog-header">
         <h3>{{ depositMode() === 'depositar' ? 'Depositar' : 'Sacar' }} valor</h3>
@@ -119,4 +138,5 @@
       </form>
     </div>
   </div>
+}
 </div>
