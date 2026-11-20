@@ -76,11 +76,12 @@
   @if (showForm()) {
     <div class="dialog-overlay"
          (click)="closeForm()"
-         (keyup.escape)="closeForm()"
+         (keydown.escape)="closeForm()"
+         tabindex="-1"
          role="dialog"
          aria-modal="true"
          aria-label="Formulário de conta">
-      <div class="dialog-card" (click)="$event.stopPropagation()">
+      <div class="dialog-card" tabindex="0" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
         <div class="dialog-header">
           <h3>{{ editing() ? 'Editar conta' : 'Nova conta' }}</h3>
           <button class="icon-btn" (click)="closeForm()" aria-label="Fechar">
