@@ -1,5 +1,4 @@
 import { TestBed } from '@angular/core/testing';
-import { RouterOutlet } from '@angular/router';
 import { App } from './app';
 
 describe('App', () => {
