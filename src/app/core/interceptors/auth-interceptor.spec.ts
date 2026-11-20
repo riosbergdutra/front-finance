@@ -47,6 +47,14 @@ describe('authInterceptor (BFF session)', () => {
     request.flush({ id: 'tx-1' });
   });
 
+  it('não envia cookies para hosts que apenas começam com a URL da API', () => {
+    http.get('http://localhost:8080.attacker.example/resource').subscribe();
+    const req = httpMock.expectOne('http://localhost:8080.attacker.example/resource');
+    expect(req.request.withCredentials).toBe(false);
+    expect(req.request.headers.has('Authorization')).toBe(false);
+    req.flush({});
+  });
+
   it('não altera requests para origens fora da API', () => {
     http.get('https://example.com/resource').subscribe();
     const req = httpMock.expectOne('https://example.com/resource');
