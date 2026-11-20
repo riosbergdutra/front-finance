@@ -6,7 +6,7 @@ import {
 import { environment } from '../../environments/environment';
 import { filter, map, switchMap } from 'rxjs';
 
-const API_URL = environment.apiUrl.replace(/\\/+$/, '');
+const API_URL = environment.apiUrl.replace(/\/+$/, '');
 const SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS', 'TRACE'];
 
 interface CsrfResponse {
