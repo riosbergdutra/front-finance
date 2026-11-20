@@ -1,6 +1,7 @@
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { CanActivateFn, Router, UrlTree } from '@angular/router';
+import { CanActivateFn, UrlTree } from '@angular/router';
 import { provideRouter } from '@angular/router';
+import { vi } from 'vitest';
 import { of, throwError } from 'rxjs';
 
 import { authGuard, guestGuard } from '../../../app/core/guards/auth-guard';
@@ -13,7 +14,6 @@ const runGuard = (guard: CanActivateFn) =>
 
 describe('authGuard', () => {
   let auth: AuthService;
-  let router: Router;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -22,42 +22,41 @@ describe('authGuard', () => {
         {
           provide: AuthService,
           useValue: {
-            isAuthenticated: jasmine.createSpy(),
-            refresh: jasmine.createSpy(),
+            isAuthenticated: vi.fn(),
+            refresh: vi.fn(),
           },
         },
       ],
     });
 
-    auth   = TestBed.inject(AuthService);
-    router = TestBed.inject(Router);
+    auth = TestBed.inject(AuthService);
   });
 
   it('permite acesso quando já autenticado', fakeAsync(() => {
-    (auth.isAuthenticated as jasmine.Spy).and.returnValue(true);
+    vi.mocked(auth.isAuthenticated).mockReturnValue(true);
 
     let result: unknown;
     Promise.resolve(runGuard(authGuard)).then((r) => (result = r));
     tick();
 
-    expect(result).toBeTrue();
+    expect(result).toBe(true);
   }));
 
   it('tenta refresh quando não autenticado e permite após sucesso', fakeAsync(() => {
-    (auth.isAuthenticated as jasmine.Spy).and.returnValue(false);
-    (auth.refresh as jasmine.Spy).and.returnValue(of({ access_token: 'new' }));
+    vi.mocked(auth.isAuthenticated).mockReturnValue(false);
+    vi.mocked(auth.refresh).mockReturnValue(of({ access_token: 'new' }));
 
     let result: unknown;
     Promise.resolve(runGuard(authGuard)).then((r) => (result = r));
     tick();
 
     expect(auth.refresh).toHaveBeenCalled();
-    expect(result).toBeTrue();
+    expect(result).toBe(true);
   }));
 
   it('redireciona para /login quando refresh falha (F5 com sessão expirada)', fakeAsync(() => {
-    (auth.isAuthenticated as jasmine.Spy).and.returnValue(false);
-    (auth.refresh as jasmine.Spy).and.returnValue(throwError(() => new Error('401')));
+    vi.mocked(auth.isAuthenticated).mockReturnValue(false);
+    vi.mocked(auth.refresh).mockReturnValue(throwError(() => new Error('401')));
 
     let result: unknown;
     Promise.resolve(runGuard(authGuard)).then((r) => (result = r));
@@ -77,7 +76,7 @@ describe('guestGuard', () => {
         provideRouter([]),
         {
           provide: AuthService,
-          useValue: { isAuthenticated: jasmine.createSpy() },
+          useValue: { isAuthenticated: vi.fn() },
         },
       ],
     });
@@ -85,17 +84,17 @@ describe('guestGuard', () => {
   });
 
   it('permite acesso quando não autenticado', fakeAsync(() => {
-    (auth.isAuthenticated as jasmine.Spy).and.returnValue(false);
+    vi.mocked(auth.isAuthenticated).mockReturnValue(false);
 
     let result: unknown;
     Promise.resolve(runGuard(guestGuard)).then((r) => (result = r));
     tick();
 
-    expect(result).toBeTrue();
+    expect(result).toBe(true);
   }));
 
   it('redireciona para /dashboard quando já autenticado', fakeAsync(() => {
-    (auth.isAuthenticated as jasmine.Spy).and.returnValue(true);
+    vi.mocked(auth.isAuthenticated).mockReturnValue(true);
 
     let result: unknown;
     Promise.resolve(runGuard(guestGuard)).then((r) => (result = r));
