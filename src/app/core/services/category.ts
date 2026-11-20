@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -8,7 +8,7 @@ const API = environment.apiUrl;
 
 @Injectable({ providedIn: 'root' })
 export class CategoryService {
-  constructor(private http: HttpClient) {}
+    private readonly http = inject(HttpClient);
 
   list(): Observable<CategoryResponse[]> {
     return this.http.get<CategoryResponse[]>(
