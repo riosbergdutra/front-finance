@@ -1,6 +1,4 @@
-import 'zone.js';
-import 'zone.js/testing';
-import { TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import {
   HttpTestingController,
@@ -49,7 +47,7 @@ describe('AuthService', () => {
 
   // ── handleCallback ──────────────────────────────────────────────────────
 
-  it('handleCallback armazena o token em memória', fakeAsync(() => {
+  it('handleCallback armazena o token em memória', () => {
     let done = false;
 
     service.handleCallback('code-123').subscribe(() => (done = true));
@@ -57,41 +55,38 @@ describe('AuthService', () => {
     const req = http.expectOne(`${API}/auth/callback`);
     expect(req.request.method).toBe('POST');
     req.flush({ access_token: 'token-abc' });
-    tick();
 
     expect(done).toBe(true);
     expect(service.getToken()).toBe('token-abc');
     expect(service.isAuthenticated()).toBe(true);
-  }));
+  });
 
-  it('handleCallback limpa o token em caso de erro', fakeAsync(() => {
+  it('handleCallback limpa o token em caso de erro', () => {
     service.handleCallback('bad-code').subscribe({ error: () => undefined });
 
     http.expectOne(`${API}/auth/callback`).flush(
       { message: 'Unauthorized' },
       { status: 401, statusText: 'Unauthorized' }
     );
-    tick();
 
     expect(service.getToken()).toBeNull();
     expect(service.isAuthenticated()).toBe(false);
-  }));
+  });
 
   // ── refresh ─────────────────────────────────────────────────────────────
 
-  it('refresh define isRefreshing durante a chamada', fakeAsync(() => {
+  it('refresh define isRefreshing durante a chamada', () => {
     service.refresh().subscribe();
 
     expect(service.getIsRefreshing()).toBe(true);
 
     http.expectOne(`${API}/auth/refresh`).flush({ access_token: 'new-token' });
-    tick();
 
     expect(service.getIsRefreshing()).toBe(false);
     expect(service.getToken()).toBe('new-token');
-  }));
+  });
 
-  it('refresh em falha limpa o token e redireciona para /login', fakeAsync(() => {
+  it('refresh em falha limpa o token e redireciona para /login', () => {
     vi.spyOn(router, 'navigate');
 
     service.refresh().subscribe({ error: () => undefined });
@@ -100,24 +95,22 @@ describe('AuthService', () => {
       {},
       { status: 401, statusText: 'Unauthorized' }
     );
-    tick();
 
     expect(service.getToken()).toBeNull();
     expect(service.getIsRefreshing()).toBe(false);
     expect(router.navigate).toHaveBeenCalledWith(['/login']);
-  }));
+  });
 
   // ── logout ──────────────────────────────────────────────────────────────
 
-  it('logout limpa o token imediatamente e chama o backend', fakeAsync(() => {
+  it('logout limpa o token imediatamente e chama o backend', () => {
     service.setToken('some-token');
     service.logout();
 
     expect(service.getToken()).toBeNull();
 
     http.expectOne(`${API}/auth/logout`).flush({});
-    tick();
-  }));
+  });
 
   // ── setToken / getToken ─────────────────────────────────────────────────
 
