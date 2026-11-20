@@ -1,46 +1,38 @@
-import { Injectable, OnDestroy, inject } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
-import { AuthService } from '../services/auth'; 
 import { environment } from '../../environments/environment';
-import { NotificationResponse } from '../models'; 
+import { NotificationResponse } from '../models';
 
 /**
- * Gerencia a conexão WebSocket com o backend para notificações em tempo real.
- *
- * Conexão: ws://backend/ws/notifications?token=<access_token>
- * O token vai no query param porque browsers não permitem headers customizados
- * na abertura de conexões WebSocket.
- *
- * Reconexão automática com backoff exponencial (1s, 2s, 4s, 8s, máx 30s).
+ * Opens the notifications WebSocket using the browser-managed HttpOnly session
+ * cookie. No OAuth token is read or placed in the WebSocket URL.
  */
 @Injectable({ providedIn: 'root' })
 export class WsNotificationService implements OnDestroy {
   private ws: WebSocket | null = null;
-  private notification$ = new Subject<NotificationResponse>();
+  private readonly notification$ = new Subject<NotificationResponse>();
   private reconnectDelay = 1000;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private destroyed = false;
 
-    private readonly auth = inject(AuthService);
-
   connect(): Observable<NotificationResponse> {
+    this.destroyed = false;
     this.openConnection();
     return this.notification$.asObservable();
   }
 
   private openConnection(): void {
-    const token = this.auth.getToken();
-    if (!token || this.destroyed) return;
+    if (this.destroyed) return;
 
-    const url = `${environment.wsUrl}?token=${encodeURIComponent(token)}`;
-    this.ws = new WebSocket(url);
+    // The browser automatically sends the SESSION_ID cookie for the API host.
+    this.ws = new WebSocket(environment.wsUrl);
 
     this.ws.onmessage = (event) => {
       try {
-        const notif: NotificationResponse = JSON.parse(event.data);
-        this.notification$.next(notif);
+        const notification: NotificationResponse = JSON.parse(event.data);
+        this.notification$.next(notification);
       } catch {
-        // ignora mensagens malformadas
+        // Ignore malformed messages.
       }
     };
 
@@ -48,12 +40,10 @@ export class WsNotificationService implements OnDestroy {
       if (!this.destroyed) this.scheduleReconnect();
     };
 
-    this.ws.onerror = () => {
-      this.ws?.close();
-    };
+    this.ws.onerror = () => this.ws?.close();
 
     this.ws.onopen = () => {
-      this.reconnectDelay = 1000; // reseta backoff em conexão bem-sucedida
+      this.reconnectDelay = 1000;
     };
   }
 
