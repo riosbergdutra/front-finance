@@ -6,17 +6,22 @@
     </span>
   </div>
 
-  <ng-container *ngIf="loading()">
+  @if (loading()) {
+<ng-container >
     <div class="cards-grid">
-      <div
+      @for (i of [1,2,3,4]; track i) {
+<div
         class="skeleton"
         style="height:110px;border-radius:16px"
-        *ngFor="let i of [1,2,3,4]"
+        
       ></div>
+}
     </div>
   </ng-container>
+}
 
-  <ng-container *ngIf="!loading() && data()">
+  @if (!loading() && data()) {
+<ng-container >
 
     <!-- cards -->
 
@@ -49,9 +54,10 @@
 
     <!-- últimas transações -->
 
-    <div
+    @if (recentTx().length > 0) {
+<div
       class="section-card"
-      *ngIf="recentTx().length > 0"
+      
     >
       <div class="section-header">
         <span>Transações recentes</span>
@@ -66,9 +72,10 @@
 
       <div class="tx-list">
 
-        <div
+        @for (tx of recentTx(); track tx) {
+<div
           class="tx-row"
-          *ngFor="let tx of recentTx()"
+          
         >
 
           <div
@@ -129,9 +136,12 @@
           </div>
 
         </div>
+}
 
       </div>
     </div>
+}
 
   </ng-container>
+}
 </div>
