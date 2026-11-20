@@ -56,8 +56,8 @@ describe('TransactionService', () => {
     service.list(undefined, undefined, 0, 20).subscribe();
 
     const req = http.expectOne((r) => r.url === `${API}/transactions`);
-    expect(req.request.params.has('de')).toBeFalse();
-    expect(req.request.params.has('ate')).toBeFalse();
+    expect(req.request.params.has('de')).toBe(false);
+    expect(req.request.params.has('ate')).toBe(false);
     req.flush({ content: [], totalElements: 0 });
     tick();
   }));
