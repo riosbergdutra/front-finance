@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -30,7 +30,9 @@ export class Goals implements OnInit {
   form!: FormGroup;
   depositForm!: FormGroup;
 
-  constructor(private goalService: GoalService, private fb: FormBuilder, private snack: MatSnackBar) {}
+    private readonly goalService = inject(GoalService);
+  private readonly fb = inject(FormBuilder);
+  private readonly snack = inject(MatSnackBar);
 
   ngOnInit(): void {
     this.form = this.fb.group({
