@@ -1,6 +1,4 @@
-import 'zone.js';
-import 'zone.js/testing';
-import { TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import {
   HttpTestingController,
@@ -41,43 +39,39 @@ describe('AccountService', () => {
 
   afterEach(() => http.verify());
 
-  it('list() retorna array de contas', fakeAsync(() => {
+  it('list() retorna array de contas', () => {
     let result: AccountResponse[] | undefined;
     service.list().subscribe((r) => (result = r));
 
     const req = http.expectOne(`${API}/accounts`);
     expect(req.request.method).toBe('GET');
     req.flush([mockAccount]);
-    tick();
 
     expect(result).toEqual([mockAccount]);
-  }));
+  });
 
-  it('create() envia POST com body correto', fakeAsync(() => {
+  it('create() envia POST com body correto', () => {
     service.create({ name: 'Nova Conta', type: 'POUPANCA', initialBalance: 0 }).subscribe();
 
     const req = http.expectOne(`${API}/accounts`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body.name).toBe('Nova Conta');
     req.flush(mockAccount);
-    tick();
-  }));
+  });
 
-  it('update() envia PUT para o ID correto', fakeAsync(() => {
+  it('update() envia PUT para o ID correto', () => {
     service.update('acc-1', { name: 'Atualizada', type: 'CORRENTE' }).subscribe();
 
     const req = http.expectOne(`${API}/accounts/acc-1`);
     expect(req.request.method).toBe('PUT');
     req.flush(mockAccount);
-    tick();
-  }));
+  });
 
-  it('deactivate() envia DELETE para o ID correto', fakeAsync(() => {
+  it('deactivate() envia DELETE para o ID correto', () => {
     service.deactivate('acc-1').subscribe();
 
     const req = http.expectOne(`${API}/accounts/acc-1`);
     expect(req.request.method).toBe('DELETE');
     req.flush(null);
-    tick();
-  }));
+  });
 });
