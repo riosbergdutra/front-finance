@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { vi } from 'vitest';
 import { HomeComponent } from './home';
 import { AuthService } from '../../core/services/auth';
 
@@ -34,12 +35,12 @@ describe('HomeComponent', () => {
 
   it('o plano PRO deve ter highlight=true', () => {
     const pro = component.plans.find((p) => p.name === 'PRO');
-    expect(pro?.highlight).toBeTrue();
+    expect(pro?.highlight).toBe(true);
   });
 
   it('isAuth retorna false quando não autenticado', () => {
     const auth = TestBed.inject(AuthService);
-    spyOn(auth, 'isAuthenticated').and.returnValue(false as any);
-    expect(component.isAuth).toBeFalse();
+    vi.spyOn(auth, 'isAuthenticated').mockReturnValue(false);
+    expect(component.isAuth).toBe(false);
   });
 });
