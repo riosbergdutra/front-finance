@@ -11,6 +11,7 @@ import { AccountResponse, CategoryResponse, TransactionResponse, TransactionType
 import { TransactionService } from "../../core/services/transaction";
 import { AccountService } from "../../core/services/account";
 import { CategoryService } from "../../core/services/category";
+import { toLocalDateInputValue } from "../../core/utils/date";
 
 @Component({
   selector: 'app-transactions',
@@ -47,19 +48,11 @@ export class TransactionsComponent implements OnInit {
 
   currentPage = 0;
 
-  filterDe =
-    new Date(
-      new Date().getFullYear(),
-      new Date().getMonth(),
-      1
-    )
-      .toISOString()
-      .split('T')[0];
+  filterDe = toLocalDateInputValue(
+    new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+  );
 
-  filterAte =
-    new Date()
-      .toISOString()
-      .split('T')[0];
+  filterAte = toLocalDateInputValue(new Date());
 
   form!: FormGroup;
 
@@ -79,7 +72,7 @@ export class TransactionsComponent implements OnInit {
         [Validators.required, Validators.min(0.01)]
       ],
       data: [
-        new Date().toISOString().split('T')[0],
+        toLocalDateInputValue(new Date()),
         Validators.required
       ],
       categoryId: [null as string | null],

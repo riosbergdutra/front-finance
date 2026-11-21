@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 import { forkJoin } from 'rxjs';
+import { toLocalDateInputValue } from '../../core/utils/date';
 
 import { DashboardService } from '../../core/services/dashboard';
 import { TransactionService } from '../../core/services/transaction';
@@ -37,17 +38,10 @@ export class DashboardComponent implements OnInit {
   ngOnInit(): void {
     const today = new Date();
 
-    const inicio = new Date(
-      today.getFullYear(),
-      today.getMonth(),
-      1
-    )
-      .toISOString()
-      .split('T')[0];
-
-    const fim = today
-      .toISOString()
-      .split('T')[0];
+    const inicio = toLocalDateInputValue(
+      new Date(today.getFullYear(), today.getMonth(), 1),
+    );
+    const fim = toLocalDateInputValue(today);
 
     forkJoin({
       dashboard: this.dashboardService.get(),

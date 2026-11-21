@@ -23,6 +23,7 @@ export class WsNotificationService implements OnDestroy {
 
   private openConnection(): void {
     if (this.destroyed) return;
+    if (this.ws && (this.ws.readyState === WebSocket.CONNECTING || this.ws.readyState === WebSocket.OPEN)) return;
 
     // The browser automatically sends the SESSION_ID cookie for the API host.
     this.ws = new WebSocket(environment.wsUrl);
@@ -36,8 +37,11 @@ export class WsNotificationService implements OnDestroy {
       }
     };
 
-    this.ws.onclose = () => {
-      if (!this.destroyed) this.scheduleReconnect();
+    this.ws.onclose = (event) => {
+      // 1003/1008 indicam rejeição da sessão; não repetir handshakes sem autenticação.
+      if (!this.destroyed && event.code !== 1003 && event.code !== 1008) {
+        this.scheduleReconnect();
+      }
     };
 
     this.ws.onerror = () => this.ws?.close();

@@ -6,6 +6,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { SubscriptionService } from '../../core/services/subscription';
 import { SubscriptionResponse } from '../../core/models';
 import { environment } from '../../environments/environment';
+import { toLocalDateInputValue } from '../../core/utils/date';
 
 @Component({
   selector: 'app-subscription',
@@ -18,8 +19,8 @@ export class Subscription implements OnInit {
   plan = signal<SubscriptionResponse | null>(null);
   loading = signal(true);
 
-  exportDe = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
-  exportAte = new Date().toISOString().split('T')[0];
+  exportDe = toLocalDateInputValue(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
+  exportAte = toLocalDateInputValue(new Date());
 
     private readonly subscriptionService = inject(SubscriptionService);
   private readonly http = inject(HttpClient);
