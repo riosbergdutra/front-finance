@@ -34,19 +34,44 @@ test.describe('Autenticação', () => {
   });
 
   test('callback exibe erro quando o BFF rejeita a sessão', async ({ page }) => {
-    await page.route('**/auth/session', async (route) => {
+    // Intercepta por pathname, independentemente do host configurado para a API.
+    // Isso mantém o E2E isolado do backend real e também cobre eventual preflight.
+    await page.route('**/*', async (route) => {
+      const url = new URL(route.request().url());
+      if (url.pathname !== '/auth/session') {
+        await route.continue();
+        return;
+      }
+
+      const corsHeaders = {
+        'Access-Control-Allow-Origin': 'http://localhost:4200',
+        'Access-Control-Allow-Credentials': 'true',
+        'Access-Control-Allow-Methods': 'GET, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      };
+
+      if (route.request().method() === 'OPTIONS') {
+        await route.fulfill({ status: 204, headers: corsHeaders });
+        return;
+      }
+
       await route.fulfill({
         status: 401,
         contentType: 'application/json',
-        headers: {
-          'Access-Control-Allow-Origin': 'http://localhost:4200',
-          'Access-Control-Allow-Credentials': 'true',
-        },
+        headers: corsHeaders,
         body: JSON.stringify({ message: 'Sessão inválida.' }),
       });
     });
 
+    const rejectedSession = page.waitForResponse((response) => {
+      const url = new URL(response.url());
+      return url.pathname === '/auth/session'
+        && response.request().method() === 'GET'
+        && response.status() === 401;
+    });
+
     await page.goto('/auth/callback');
+    await rejectedSession;
     await expect(page.locator('.error-state')).toBeVisible({ timeout: 10000 });
     await expect(page.locator('.error-state')).toContainText('Falha na autenticação');
   });
