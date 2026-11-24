@@ -1,27 +1,18 @@
 <div class="callback-page">
   <div class="spinner-container">
-
-    <div class="spinner"></div>
-
-    @if (!error) {
+    @if (!error()) {
+      <div class="spinner"></div>
       <p>Autenticando...</p>
     }
 
-    @if (error) {
-      <div class="error-state">
-
-        <span class="material-icons-round">
-          error_outline
-        </span>
-
-        <p>{{ error }}</p>
-
-        <button (click)="goLogin()">
+    @if (error(); as message) {
+      <div class="error-state" role="alert" aria-live="assertive">
+        <span class="material-icons-round" aria-hidden="true">error_outline</span>
+        <p>{{ message }}</p>
+        <button type="button" (click)="goLogin()">
           Tentar novamente
         </button>
-
       </div>
     }
-
   </div>
 </div>
