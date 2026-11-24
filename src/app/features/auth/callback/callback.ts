@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth';
 
@@ -9,8 +9,7 @@ import { AuthService } from '../../../core/services/auth';
   styleUrl: './callback.css',
 })
 export class CallbackComponent implements OnInit {
-  error: string | null = null;
-  loading = true;
+  readonly error = signal<string | null>(null);
 
   private readonly router = inject(Router);
   private readonly auth = inject(AuthService);
@@ -21,19 +20,19 @@ export class CallbackComponent implements OnInit {
     this.auth.checkSession().subscribe({
       next: (session) => {
         if (session.authenticated) {
-          this.router.navigate(['/app/dashboard'], { replaceUrl: true });
+          void this.router.navigate(['/app/dashboard'], { replaceUrl: true });
         } else {
           this.goLogin();
         }
       },
       error: () => {
-        this.error = 'Falha na autenticação. Tente novamente.';
-        this.loading = false;
+        // Signals notificam o Angular mesmo em execução zoneless.
+        this.error.set('Falha na autenticação. Tente novamente.');
       },
     });
   }
 
   goLogin(): void {
-    this.router.navigate(['/login']);
+    void this.router.navigate(['/login']);
   }
 }
