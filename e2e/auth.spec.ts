@@ -34,7 +34,7 @@ test.describe('Autenticação', () => {
   });
 
   test('callback exibe erro quando o BFF rejeita a sessão', async ({ page }) => {
-    await page.route('http://localhost:8080/auth/session', async (route) => {
+    await page.route('**/auth/session', async (route) => {
       await route.fulfill({
         status: 401,
         contentType: 'application/json',
